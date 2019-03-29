@@ -30,6 +30,8 @@ npm run dev # development mode
 npm run build && npm run view # production mode
 ```
 
+## Development Server
+This repo is running as a heroku server at https://genomic-incidence-tracker.herokuapp.com
 
 ## Development Aims / Notes
 These are based on experience (good & bad) with auspice over the past two years.
@@ -113,11 +115,12 @@ Non-time-critical changes should be merged into master using PRs with code revie
 ### Data requests (server API)
 The current implementation sources all API handlers from `./server/api.js`.
 These handlers should be easily imported into another server -- e.g. the [current seattleflu.org server](https://github.com/seattleflu/website/blob/master/server.js) -- as needed in the future. 
+One example API is provided: localhost:4000/getData or https://genomic-incidence-tracker.herokuapp.com/getData
 
 ## Code Structure
 
-TO DO.
-
+* `./server/index.js` - The main CLI interface to running the project.
+* `./server/api.js` - The server API handlers
 
 
 ## License and copyright

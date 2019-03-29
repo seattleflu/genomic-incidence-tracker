@@ -1,0 +1,53 @@
+{
+  "name": "genomic-incidence-tracker",
+  "version": "0.0.1",
+  "description": "Visualisation app for the seattle flu project",
+  "main": "index.js",
+  "author": "James Hadfield, Anotonio Solano, Trevor Bedford",
+  "license": "AGPL-3.0-only",
+  "repository": "github:seattleflu/genomic-incidence-tracker",
+  "engines": {
+    "node": "11.11.x",
+    "npm": "6.7.x"
+  },
+  "scripts": {
+    "develop": "node server/index.js develop --verbose",
+    "build": "node server/index.js build --verbose",
+    "view": "node server/index.js view --verbose",
+    "start": "npm run develop"
+  },
+  "dependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-decorators": "^7.4.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/preset-react": "^7.0.0",
+    "argparse": "^1.0.10",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-styled-components": "^1.10.0",
+    "babel-polyfill": "^6.26.0",
+    "chalk": "^2.4.2",
+    "compression": "^1.7.4",
+    "compression-webpack-plugin": "^2.0.0",
+    "express": "^4.16.4",
+    "express-naked-redirect": "^0.1.3",
+    "express-static-gzip": "^1.1.3",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "webpack": "^4.29.6"
+  },
+  "devDependencies": {
+    "eslint": "^5.14.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-config-defaults": "^7.0.1",
+    "eslint-plugin-filenames": "^0.1.2",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.2.1",
+    "webpack-bundle-analyzer": "^3.1.0",
+    "webpack-dev-middleware": "^3.6.1",
+    "webpack-hot-middleware": "^2.24.3"
+  }
+}

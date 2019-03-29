@@ -1,0 +1,6 @@
+name: genomic-incidence-tracker
+channels:
+- conda-forge
+dependencies:
+- nodejs=11.11.0
+
