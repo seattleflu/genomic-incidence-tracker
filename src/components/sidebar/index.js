@@ -19,7 +19,7 @@ const SidebarOuterContainer = styled.div`
   position: absolute;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: ${(props) => props.theme.background};
+  background-color: ${(props) => props.theme.sidebarBackground};
 `;
 
 const SidebarInnerContainer = styled.div`

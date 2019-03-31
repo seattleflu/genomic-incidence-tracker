@@ -18,13 +18,17 @@ const MainContainer = styled.div`
   overflow-x: hidden;
   overflow-y: scroll;
   left: ${(props) => props.left+"px"};
-  background-color: yellowgreen;
+  background-color: ${(props) => props.theme.mainBackground};
+`;
+
+const Padding = styled.div`
+  padding: 20px 20px 20px 20px;
 `;
 
 const getSidebarWidth = (windowWidth) =>
   windowWidth > 1200 ? 300 : 250;
 
-const Layout = (props) => {
+const MainLayout = (props) => {
   const sidebarWidth = getSidebarWidth();
   const mainWidth = props.windowWidth - sidebarWidth;
   return (
@@ -32,13 +36,15 @@ const Layout = (props) => {
       <>
         <Sidebar width={sidebarWidth} height={props.windowHeight}/>
         <MainContainer width={mainWidth} height={props.windowHeight}>
-          <h1>THIS IS THE HEADER</h1>
-          <ChartLayout width={mainWidth}/>
-          <h1>THIS IS THE FOOTER</h1>
+          <Padding>
+            <h1>THIS IS THE HEADER</h1>
+            <ChartLayout width={mainWidth}/>
+            <h1>THIS IS THE FOOTER</h1>
+          </Padding>
         </MainContainer>
       </>
     </ThemeProvider>
   );
 };
 
-export default windowDimensionsHOC(Layout);
+export default windowDimensionsHOC(MainLayout);

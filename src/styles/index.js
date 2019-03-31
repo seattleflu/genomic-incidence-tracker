@@ -4,13 +4,15 @@
  * but may need updating
  */
 const neutral = {
+  100: "#EDEFEF",
   200: "#C9CED0",
   600: "#626D71"
 };
 
 export const mainTheme = {
   neutral,
-  background: neutral[200],
+  sidebarBackground: neutral[200],
+  mainBackground: neutral[100],
   colorSubheading: neutral[600]
 };
 

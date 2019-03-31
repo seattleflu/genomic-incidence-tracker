@@ -1,8 +1,9 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import Layout from "./layout";
+import MainLayout from "./mainLayout";
 import { getAvailableVariables } from "../../actions/fetchData";
+
 /* This component manages the main screen (currently the only screen)
  * and is connected to redux.
  * It should not itself handle any layout decisions -- that is the remit
@@ -18,8 +19,13 @@ class MainScreen extends React.Component {
   }
 
   render() {
+    if (!this.props.loaded) {
+      return (
+        <h1>{"data not loaded..."}</h1>
+      );
+    }
     return (
-      <Layout/>
+      <MainLayout/>
     );
   }
 }
@@ -32,5 +38,10 @@ class MainScreen extends React.Component {
 //   name: 'Stranger'
 // };
 
+const mapStateToProps = (state) => {
+  /* use Memoized Selectors (library: reselect) for complex transforms */
+  return {loaded: state.settings.loaded};
+};
 
-export default connect(null, null)(MainScreen);
+
+export default connect(mapStateToProps)(MainScreen);
