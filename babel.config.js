@@ -6,7 +6,7 @@ const utils = require('./server/utils');
 module.exports = function babelConfig(api) {
   utils.verbose(`Generating Babel Config`);
   const presets = [
-    "@babel/env",
+    ["@babel/env", {targets: {node: "10"}}], // target needed for async/await
     "@babel/preset-react"
   ];
   const plugins = [

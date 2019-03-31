@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
+import Options from "./options";
 
 /* The Sidebar is intended to be a reusable component for different "screens"
  * which this app may one day use.
@@ -32,13 +33,13 @@ const SidebarInnerContainer = styled.div`
   flex-shrink: 1;
   flex-basis: auto;
   align-self: auto;
-  padding: 0px 20px 20px 20px;
+  padding: 20px 20px 20px 20px;
 `;
 
 const Sidebar = ({width, height}) => (
   <SidebarOuterContainer width={width} height={height}>
     <SidebarInnerContainer>
-      <h2>SIDEBAR</h2>
+      <Options/>
     </SidebarInnerContainer>
   </SidebarOuterContainer>
 );

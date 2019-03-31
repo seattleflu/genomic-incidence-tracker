@@ -1,8 +1,17 @@
 
 
+/* Colour pallettes come from the seattle flu website
+ * but may need updating
+ */
+const neutral = {
+  200: "#C9CED0",
+  600: "#626D71"
+};
+
 export const mainTheme = {
-  background: "#30353F",
-  color: "#D3D3D3"
+  neutral,
+  background: neutral[200],
+  colorSubheading: neutral[600]
 };
 
 
