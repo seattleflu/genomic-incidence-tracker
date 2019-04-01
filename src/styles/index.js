@@ -11,8 +11,8 @@ const neutral = {
 
 export const mainTheme = {
   neutral,
-  sidebarBackground: neutral[200],
-  mainBackground: neutral[100],
+  sidebarBackground: neutral[100],
+  mainBackground: neutral[200],
   colorSubheading: neutral[600]
 };
 

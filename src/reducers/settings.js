@@ -14,7 +14,7 @@ const initialState = {
 
 const setAvailableData = (data) => {
   const state = data;
-  for (const key in data) {  // eslint-disable-line no-restricted-syntax
+  for (const key of Object.keys(data)) {
     if (state[key].unset) {
       state[key].selected = null;
       delete state[key].unset;

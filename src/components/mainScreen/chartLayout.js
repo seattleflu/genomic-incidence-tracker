@@ -15,7 +15,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.mainBackground};
 `;
 
-const getTablesToRender = (settings) => {
+const getTablesToRender = ({settings, geoData}) => {
   /* calculate a list of all the tables to render... */
   return ([
     <Table
@@ -24,11 +24,12 @@ const getTablesToRender = (settings) => {
       height={tableDimensions.minHeight}
       variable={settings.primaryVariable.selected}
       geoResolution={settings.geoResolution.selected}
+      geoData={geoData}
     />
   ]);
 };
 
-const getMapsToRender = (settings) => {
+const getMapsToRender = ({settings, geoData}) => {
   /* calculate a list of all the maps to render... */
   return ([
     <Geo
@@ -37,14 +38,19 @@ const getMapsToRender = (settings) => {
       height={geoDimensions.minHeight}
       variable={settings.primaryVariable.selected}
       geoResolution={settings.geoResolution.selected}
+      geoData={geoData}
     />
   ]);
 };
 
 
 const ChartLayout = (props) => {
-  const tables = getTablesToRender(props.settings);
-  const maps = getMapsToRender(props.settings);
+  if (!props.geoData) {
+    return null;
+  }
+
+  const tables = getTablesToRender({...props});
+  const maps = getMapsToRender({...props});
   const renderList = [];
   tables.forEach((t) => renderList.push(t));
   maps.forEach((m) => renderList.push(m));
@@ -59,7 +65,10 @@ const ChartLayout = (props) => {
 
 const mapStateToProps = (state) => {
   /* use Memoized Selectors (library: reselect) for complex transforms */
-  return {settings: state.settings};
+  return {
+    settings: state.settings,
+    geoData: state.geoData /* could be injected to the map / table instead */
+  };
 };
 
 export default connect(mapStateToProps)(ChartLayout);

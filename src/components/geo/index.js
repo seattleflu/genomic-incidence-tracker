@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getDemes } from "../../utils/processGeoData";
 
 
 export const geoDimensions = {
@@ -18,11 +19,11 @@ const Placeholder = styled.div`
   font-size: 20px;
 `;
 
-const Geo = ({variable, geoResolution, width, height}) => {
+const Geo = ({variable, geoResolution, geoData, width, height}) => {
   return (
     <Placeholder width={width} height={height}>
       <div>MAP OF SEATTLE</div>
-      <div>{`resolution: ${geoResolution.label}`}</div>
+      <div>{`resolution: ${geoResolution.label} (${getDemes({geoData, geoResolution}).length} demes)`}</div>
       <div>{`variable: ${variable.label}`}</div>
       <div>{`display method: TO DO`}</div>
     </Placeholder>

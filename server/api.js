@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 /*
  * This file contains the API handlers for the genomic incidence mapper
  * They are used during development by the server here (./index.js)
@@ -7,7 +10,6 @@
  */
 
 const getDataExample = async (req, res) => {
-
   res.json("Server returned data");
 
   /* example of how to handle failure: */
@@ -16,68 +18,32 @@ const getDataExample = async (req, res) => {
   // res.status(500).end();
 };
 
-
 const getAvailableVariables = async (req, res) => {
   /* First attempt at getting the available variable choices
    * e.g. which primary variables are available?
    * (I imagine the shape of this data will drastically change)
-   * (It's hardcoded here for simplicity)
+   * (the way the _server_ accesses the data will also change, this is just for dev)
    */
+  const fileContents = fs.readFileSync(path.resolve(__dirname, "../data/variableChoices.json"), 'utf8');
+  res.json(JSON.parse(fileContents));
+};
 
-  res.json({
-    pathogen: {
-      sidebarLabel: "Pathogen",
-      choices: [
-        {value: "ILI", label: "ILI"}
-      ]
-    },
-    geoResolution: {
-      sidebarLabel: "Map Detail",
-      choices: [
-        {value: "neighborhood", label: "Neighborhood"}, // first is the default
-        {value: "all", label: "Whole of Seattle"},
-        {value: "cra", label: "CRAs"},
-        {value: "census", label: "Census Tracts"}
-      ]
-    },
-    dataSource: {
-      sidebarLabel: "Data Source",
-      choices: [
-        {value: "raw", label: "Raw Data"},
-        {value: "model", label: "Modelling Results"}
-      ]
-    },
-    time: {
-      sidebarLabel: "Time Frame",
-      choices: [
-        {value: "fixed", label: "To Do"}
-      ]
-    },
-    primaryVariable: {
-      sidebarLabel: "Primary Variable",
-      choices: [
-        {value: "vaxStatus", label: "Vaccination Status"},
-        {value: "sex", label: "Sex"},
-        {value: "age", label: "Age Groups"}
-      ]
-    },
-    groupByVariable: {
-      sidebarLabel: "Group By",
-      choices: [
-        {value: "vaxStatus", label: "Vaccination Status"}, // first is the default
-        {value: "sex", label: "Sex"},
-        {value: "age", label: "Age Groups"}
-      ],
-      unset: true
-    }
-  });
-
+const getGeoJsons = async (req, res) => {
+  /* data copied from the "seattle-geojson" repo.
+   * (it may be that this repo is kept as the "source of truth"
+   * and imported by the server.) Think of this as proof of principle.
+   *
+   * Keys match getAvailableVariables -> geoResolution -> choices[x] -> value
+   */
+  const fileContents = fs.readFileSync(path.resolve(__dirname, "../data/seattle.geoJson"), 'utf8');
+  res.json(JSON.parse(fileContents));
 };
 
 
 const addHandlers = (app) => {
   app.get("/getData", getDataExample);
   app.get("/getAvailableVariables", getAvailableVariables);
+  app.get("/getGeoJsons", getGeoJsons);
 };
 
 module.exports = {

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
 import Options from "./options";
+import { headerHeight } from '../header';
 
 /* The Sidebar is intended to be a reusable component for different "screens"
  * which this app may one day use.
@@ -10,10 +11,10 @@ import Options from "./options";
  */
 
 const SidebarOuterContainer = styled.div`
-  height: ${(props) => props.height+"px"};
+  height: ${(props) => (props.height-headerHeight)+"px"};
   width: ${(props) => props.width+"px"};
   max-width: ${(props) => props.width+"px"};
-  top: 0;
+  top: ${headerHeight}px;
   bottom: 0;
   left: 0;
   position: absolute;

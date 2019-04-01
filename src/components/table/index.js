@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { getDemes } from "../../utils/processGeoData";
 
 export const tableDimensions = {
   minWidth: 400,
@@ -18,12 +18,12 @@ const Placeholder = styled.div`
   font-size: 20px;
 `;
 
-const Table = ({variable, geoResolution, width, height}) => {
+const Table = ({variable, geoResolution, geoData, width, height}) => {
   return (
     <Placeholder width={width} height={height}>
       <div>TABLE</div>
       <div>{`x-axis: ${variable.label}`}</div>
-      <div>{`rows: ${geoResolution.label}`}</div>
+      <div>{`${getDemes({geoData, geoResolution}).length} rows representing ${geoResolution.label}`}</div>
       <div>{`colours: to do`}</div>
     </Placeholder>
   );

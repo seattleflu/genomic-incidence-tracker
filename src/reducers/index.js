@@ -1,9 +1,10 @@
 import { combineReducers } from "redux";
 import settings from "./settings";
-
+import geoData from "./geoData";
 
 const rootReducer = combineReducers({
-  settings
+  settings,
+  geoData
 });
 
 export default rootReducer;

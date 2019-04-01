@@ -1,0 +1,47 @@
+{
+  "pathogen": {
+    "sidebarLabel": "Pathogen",
+    "choices": [
+      {"value": "ILI", "label": "ILI"}
+    ]
+  },
+  "geoResolution": {
+    "sidebarLabel": "Map Detail",
+    "choices": [
+      {"value": "neighborhood", "label": "Neighborhood"},
+      {"value": "all", "label": "Whole of Seattle"},
+      {"value": "cra", "label": "CRAs"},
+      {"value": "census", "label": "Census Tracts"}
+    ]
+  },
+  "dataSource": {
+    "sidebarLabel": "Data Source",
+    "choices": [
+      {"value": "raw", "label": "Raw Data"},
+      {"value": "model", "label": "Modelling Results"}
+    ]
+  },
+  "time": {
+    "sidebarLabel": "Time Frame",
+    "choices": [
+      {"value": "fixed", "label": "To Do"}
+    ]
+  },
+  "primaryVariable": {
+    "sidebarLabel": "Primary Variable",
+    "choices": [
+      {"value": "vaxStatus", "label": "Vaccination Status"},
+      {"value": "sex", "label": "Sex"},
+      {"value": "age", "label": "Age Groups"}
+    ]
+  },
+  "groupByVariable": {
+    "sidebarLabel": "Group By",
+    "choices": [
+      {"value": "vaxStatus", "label": "Vaccination Status"},
+      {"value": "sex", "label": "Sex"},
+      {"value": "age", "label": "Age Groups"}
+    ],
+    "unset": true
+  }
+}
