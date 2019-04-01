@@ -6,12 +6,12 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import rootReducer from "./reducers";
+import changeURLMiddleware from "./middleware/changeURL";
 
 const reduxStore = ((initialState) => {
   const middleware = [
-    thunk
-    // changeURLMiddleware, // eslint-disable-line comma-dangle
-    // loggingMiddleware
+    thunk,
+    changeURLMiddleware
   ];
   const composedEnhancers = compose(
     applyMiddleware(...middleware),
@@ -31,10 +31,6 @@ const reduxStore = ((initialState) => {
 
 const renderApp = () => {
   const Root = require("./root").default; // eslint-disable-line global-require
-  // ReactDOM.render(
-  //   <Root />,
-  //   document.getElementById('root')
-  // );
   ReactDOM.render(
     <Provider store={reduxStore}>
       <Root />
