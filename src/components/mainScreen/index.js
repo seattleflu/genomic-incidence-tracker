@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import styled, { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import windowDimensionsHOC from "../misc/windowDimensions";
 import Sidebar from "../sidebar";
 import ChartLayout from "./chartLayout";
-import { mainTheme } from "../../styles";
-import Header, {headerHeight} from "../header";
-import ErrorBoundary from "../misc/errorBoundary";
+import {headerHeight} from "../header";
+import Options from "../sidebar/mainOptions";
 
 /* MainContainer is all of the screen to the right of the sidebar */
-const MainContainer = styled.div`
+export const MainContainer = styled.div`
   position: absolute;
   top: ${headerHeight}px;
   bottom: 0;
@@ -47,21 +46,18 @@ const MainScreen = (props) => {
   const sidebarWidth = getSidebarWidth();
   const mainWidth = props.windowWidth - sidebarWidth;
   return (
-    <ErrorBoundary>
-      <ThemeProvider theme={mainTheme}>
-        <>
-          <Header/>
-          <Sidebar width={sidebarWidth} height={props.windowHeight}/>
-          <MainContainer width={mainWidth} height={props.windowHeight}>
-            <Padding>
-              <h2>title of current viz</h2>
-              <ChartLayout width={mainWidth}/>
-              <h2>footer</h2>
-            </Padding>
-          </MainContainer>
-        </>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <>
+      <Sidebar width={sidebarWidth} height={props.windowHeight}>
+        <Options/>
+      </Sidebar>
+      <MainContainer width={mainWidth} height={props.windowHeight}>
+        <Padding>
+          <h2>title of current viz</h2>
+          <ChartLayout width={mainWidth}/>
+          <h2>footer</h2>
+        </Padding>
+      </MainContainer>
+    </>
   );
 };
 

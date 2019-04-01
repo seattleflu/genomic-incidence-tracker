@@ -1,14 +1,10 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
-import MainScreen from "./components/mainScreen";
-import DataFetch from "./components/DataFetch";
+import App from "./components/app";
 
 const Root = () => {
   return (
-    <>
-      <DataFetch/>
-      <MainScreen/>
-    </>
+    <App/>
   );
 };
 

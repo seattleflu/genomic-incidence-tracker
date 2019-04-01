@@ -1,32 +1,40 @@
 import styled from 'styled-components';
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from "react-redux";
+import * as types from '../../actions/types';
 
 const Container = styled.div`
   color: ${(props) => props.theme.neutral[200]};
   font-size: 20px;
-  padding-right: 20px
+  padding-right: 20px;
 `;
 
 const Button = styled.button`
 
 `;
 
-
-const Modes = () => {
+const Modes = ({changeScreen}) => {
   return (
     <Container>
-      <Button>
+      <Button onClick={() => changeScreen("main")}>
         {"Interact"}
       </Button>
-      <Button>
+      <Button onClick={() => changeScreen("report")}>
         {"Report"}
       </Button>
-      <Button>
+      <Button onClick={() => changeScreen("rawData")}>
         {"Raw Data"}
       </Button>
     </Container>
   );
 };
 
+Modes.propTypes = {
+  changeScreen: PropTypes.func.isRequired
+};
 
-export default Modes;
+const mapDispatchToProps = {
+  changeScreen: (newScreen) => ({type: types.CHANGE_SCREEN, data: newScreen})
+};
+export default connect(null, mapDispatchToProps)(Modes);
