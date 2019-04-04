@@ -26,7 +26,7 @@ npm install
 ```
 Run:
 ```
-npm run dev # development mode
+npm run develop # development mode
 npm run build && npm run view # production mode
 ```
 
@@ -51,6 +51,10 @@ It has been extremely helpful with Auspice to have a central source of truth.
 While there are plenty of "you don't need redux" blog posts, I think it's currently the best solution for an app like this.
 (While the new context API is useful for some things, it is too slow to store all the state for an app like this. See [this thread](https://github.com/reduxjs/react-redux/issues/1177) for more details, including why it's still implemented as a HOC rather than a hook.)
 Note that state limited to a component can -- and should -- simply use `this.setState` and `this.state` (or the `useState` Hook).
+
+
+In the future we may choose to store state at the root level, e.g. using a [useReducer](https://reactjs.org/docs/hooks-reference.html#usereducer) hook and passing `dispatch` down [like this](https://reactjs.org/docs/hooks-faq.html#how-to-avoid-passing-callbacks-down).
+But for now I think redux (and the provided dev tools) is the right choice.
 
 
 ### Styled Components
@@ -80,8 +84,8 @@ We've had much more success using a single "update" function ([example](https://
 
 
 ### Mobile
-We should develop with both mobile & desktop views in mind.
-The different target capabilities are to be discussed, but it should at least look nice on mobile.
+We should develop with both mobile & desktop views in mind, but de-emphasize interactions.
+For the April 2019 prototype mobile will not be considered.
 
 
 ### Linting
@@ -96,7 +100,7 @@ If there are strong opinions then we could definately use it (my understanding i
 
 
 Likewise, we used to use [React's PropTypes](https://reactjs.org/docs/typechecking-with-proptypes.html) in Auspice, but have drifted away from them for no real reason.
-I suggest we use them in this project, along with `defaultProps` and `displayName`.
+I suggest we use them in this project, along with `defaultProps` and `displayName` where applicable.
 
 
 ### Testing
@@ -106,6 +110,10 @@ Having only used them a little bit, I like [jest](https://jestjs.io/) and [react
 
 
 Travis-CI: TO DO.
+
+
+### Documentation in the code
+Where possible, using simple [JSDoc](http://usejsdoc.org/about-getting-started.html) comments are a good idea!
 
 
 ### Github

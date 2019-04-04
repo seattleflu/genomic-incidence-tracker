@@ -15,9 +15,10 @@ module.exports = function babelConfig(api) {
     "babel-plugin-styled-components",
     "@babel/plugin-syntax-dynamic-import"
   ];
-  // if (api.env("development")) {
-  //   plugins.push("react-hot-loader/babel");
-  // }
+  if (api.env("development")) {
+    utils.verbose(`(hot reloading enabled in babel config)`);
+    plugins.push("react-hot-loader/babel");
+  }
   api.cache(true);
   return {
     presets,

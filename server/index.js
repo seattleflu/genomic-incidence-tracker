@@ -90,7 +90,7 @@ if (args.subcommand === "build") {
     const compiler = webpack(webpackConfig);
 
     /* variables available to babel (which is called by webpack) */
-    process.env.BABEL_ENV = args.subcommand === "development";
+    process.env.BABEL_ENV = args.subcommand === "develop" ? "development" : "production";
     const webpackDevMiddleware = require("webpack-dev-middleware"); // eslint-disable-line
     const webpackHotMiddleware = require("webpack-hot-middleware"); // eslint-disable-line
     app.use((webpackDevMiddleware)(

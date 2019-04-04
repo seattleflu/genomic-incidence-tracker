@@ -1,5 +1,6 @@
 ### App specific ###
 /dist/
+/dataPrivate/
 
 ### OSX ###
 .DS_Store
