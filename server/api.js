@@ -39,11 +39,22 @@ const getGeoJsons = async (req, res) => {
   res.json(JSON.parse(fileContents));
 };
 
+const localOnlyGetPrivateData = async (req, res) => {
+  /* the JSON file here is (not yet) for public release, so it's stored in
+   * the gitignored dataPrivate directory.
+   *
+   * Keys match ???
+   */
+  const fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/example-data-export.json"), 'utf8');
+  res.json(JSON.parse(fileContents));
+};
+
 
 const addHandlers = (app) => {
   app.get("/getData", getDataExample);
   app.get("/getAvailableVariables", getAvailableVariables);
   app.get("/getGeoJsons", getGeoJsons);
+  app.get("/localOnlyGetPrivateData", localOnlyGetPrivateData);
 };
 
 module.exports = {

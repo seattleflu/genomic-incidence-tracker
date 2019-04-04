@@ -32,3 +32,18 @@ export const getGeoJsons = () => async (dispatch) => {
     console.error(err);
   }
 };
+
+export const localOnlyGetPrivateData = () => async (dispatch) => {
+  try {
+    const data = await fetch('/localOnlyGetPrivateData')
+      .then((res) => res.json());
+    /* we'll proabably want to transform the data into the correct form here (try to keep reducers minimal) */
+    dispatch({type: types.SET_PRIVATE_DATA, data});
+  } catch (err) {
+    /* Note that if the dispatch raises an error, e.g. in the reducer,
+     * it will be caught here
+     */
+    console.error("Error in localOnlyGetPrivateData / reducer");
+    console.error(err);
+  }
+};
