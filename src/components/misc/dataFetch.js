@@ -1,21 +1,16 @@
-import React from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import { getAvailableVariables, getGeoJsons } from "../../actions/fetchData";
 
-/* This component fetches data when the app loads, that's it! */
-class DataFetch extends React.Component {
-  constructor(props) {
-    super(props);
-    /* fetch data for app ... */
-    props.getAvailableVariables();
-    props.getGeoJsons();
-  }
-
-  render() {
-    return null;
-  }
-}
+const DataFetch = (fetchFunctions) => {
+  useEffect(() => {
+    for (const key of Object.keys(fetchFunctions)) {
+      fetchFunctions[key]();
+    }
+  }, [fetchFunctions]); /* could also use [] as props _should_ never change */
+  return null;
+};
 
 DataFetch.propTypes = {
   getAvailableVariables: PropTypes.func.isRequired,
