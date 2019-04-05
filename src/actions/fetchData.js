@@ -1,5 +1,6 @@
 import queryString from "query-string";
 import * as types from "./types";
+import { setDemesAndLinksFromRawData } from "../utils/processGeoData";
 
 export const getAvailableVariables = () => async (dispatch) => {
   try {
@@ -20,9 +21,7 @@ export const getGeoJsons = () => async (dispatch) => {
     const data = await fetch('/getGeoJsons')
       .then((res) => res.json());
     /* we'll proabably want to transform the data into the correct form here (try to keep reducers minimal) */
-    for (const key in data) {
-      data[key].demes = data[key].features.map((feat) => feat.properties.CRA_NAM);
-    }
+    setDemesAndLinksFromRawData(data);
     dispatch({type: types.SET_GEO_DATA, data});
   } catch (err) {
     /* Note that if the dispatch raises an error, e.g. in the reducer,

@@ -30,7 +30,7 @@
   "primaryVariable": {
     "sidebarLabel": "Primary Variable",
     "choices": [
-      {"value": "vaxStatus", "label": "Vaccination Status"},
+      {"value": "flu_shot", "label": "Vaccination Status"},
       {"value": "sex", "label": "Sex"},
       {"value": "age", "label": "Age Groups"}
     ]

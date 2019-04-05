@@ -22,7 +22,7 @@ const getTablesToRender = ({settings, geoData}) => {
       key={"mainTable"}
       width={tableDimensions.minWidth}
       height={tableDimensions.minHeight}
-      variable={settings.primaryVariable.selected}
+      xVariable={settings.primaryVariable.selected}
       geoResolution={settings.geoResolution.selected}
       geoData={geoData}
     />
