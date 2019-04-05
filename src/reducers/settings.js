@@ -26,6 +26,7 @@ const setAvailableData = (existingState, data, urlQuery) => {
 
     if (state[key].unset) {
       state[key].selected = null;
+      state[key].choices.unshift({value: "REMOVE", label: "REMOVE"});
       delete state[key].unset;
     } else {
       state[key].selected = data[key].choices[0];
@@ -50,7 +51,11 @@ const settings = (state = initialState, action) => {
       return setAvailableData(state, action.data, action.urlQuery);
     case types.CHANGE_SETTING:
       const modification = {};
-      modification[action.key] = Object.assign({}, state[action.key], {selected: action.value});
+      if (action.value.value === "REMOVE") {
+        modification[action.key] = Object.assign({}, state[action.key], {selected: null});
+      } else {
+        modification[action.key] = Object.assign({}, state[action.key], {selected: action.value});
+      }
       return Object.assign({}, state, modification);
     case types.CHANGE_SCREEN:
       return Object.assign({}, state, {screen: action.data});
