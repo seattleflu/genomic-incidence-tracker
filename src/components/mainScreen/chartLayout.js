@@ -15,16 +15,13 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.mainBackground};
 `;
 
-const getTablesToRender = ({settings, geoData}) => {
+const getTablesToRender = () => {
   /* calculate a list of all the tables to render... */
   return ([
     <Table
       key={"mainTable"}
       width={tableDimensions.minWidth}
       height={tableDimensions.minHeight}
-      xVariable={settings.primaryVariable.selected}
-      geoResolution={settings.geoResolution.selected}
-      geoData={geoData}
     />
   ]);
 };
