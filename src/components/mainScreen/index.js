@@ -52,9 +52,7 @@ const MainScreen = (props) => {
       </Sidebar>
       <MainContainer width={mainWidth} height={props.windowHeight}>
         <Padding>
-          <h2>title of current viz</h2>
           <ChartLayout width={mainWidth}/>
-          <h2>footer</h2>
         </Padding>
       </MainContainer>
     </>

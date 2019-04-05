@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
 import Table, { tableDimensions } from "../table";
 import Geo, { geoDimensions } from "../geo";
 import { selectCategoriesForGroupByVariable } from "../../reducers/privateData";
+import TableMapToggle from "./tableMapToggle";
 
 /* Container will hold all the individual tables and/or maps */
 const Container = styled.div`
@@ -58,22 +59,31 @@ const getMapsToRender = (groupByCategories) => {
   ]);
 };
 
-
 const ChartLayout = (props) => {
+  /* this state only used if we are faceting, i.e. we have a group by variable */
+  const [chartType, changeChartType] = useState("table");
   if (!props.geoData) {
     return null;
   }
 
-  const tables = getTablesToRender(props.groupByCategories);
-  const maps = getMapsToRender(props.groupByCategories);
+  /* what to render? */
   const renderList = [];
-  tables.forEach((t) => renderList.push(t));
-  maps.forEach((m) => renderList.push(m));
+  if (!props.groupByCategories || chartType === "table") {
+    const tables = getTablesToRender(props.groupByCategories);
+    tables.forEach((t) => renderList.push(t));
+  }
+  if (!props.groupByCategories || chartType === "map") {
+    const maps = getMapsToRender(props.groupByCategories);
+    maps.forEach((m) => renderList.push(m));
+  }
 
   return (
-    <Container>
-      {renderList}
-    </Container>
+    <>
+      {props.groupByCategories ? <TableMapToggle chartType={chartType} handleClick={changeChartType}/> : null}
+      <Container>
+        {renderList}
+      </Container>
+    </>
   );
 };
 

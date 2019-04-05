@@ -11,27 +11,25 @@ export const geoDimensions = {
   minHeight: 600,
   maxHeight: 1200
 };
-
+const margin = 10;
 const Container = styled.div`
-  background-color: #84A5C7;
-  min-width: ${(props) => props.width}px;
-  max-width: ${(props) => props.width}px;
-  min-height: ${(props) => props.height}px;
-  max-height: ${(props) => props.height}px;
-  font-size: 20px;
+  min-width: ${(props) => props.width - 2*margin}px;
+  max-width: ${(props) => props.width - 2*margin}px;
+  min-height: ${(props) => props.height - 2*margin}px;
+  max-height: ${(props) => props.height - 2*margin}px;
+  margin: ${margin}px;
+  background-color: white;
 `;
 
 const Geo = ({width, height, data, geoResolution}) => {
   const refElement = useRef(null);
 
   useEffect(() =>
-    renderMap({ref: refElement.current, width, height, data, geoResolution})
+    renderMap({ref: refElement.current, width: width-2*margin, height: height-2*margin, data, geoResolution})
   );
 
   return (
-    <Container width={width} height={height}>
-      <div ref={refElement}/>
-    </Container>
+    <Container width={width} height={height} ref={refElement}/>
   );
 };
 
