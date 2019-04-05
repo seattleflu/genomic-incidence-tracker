@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import * as types from "../actions/types";
 import { selectDemes, selectGeoLinks} from "./geoData";
-
+import { selectGeoResolution } from "./settings";
 
 /**
  * The name of this reducer will change as we better understand what data
@@ -157,7 +157,7 @@ export const selectDataForTable = createSelector(
     selectCategoriesForPrimaryVariable,
     selectDemes,
     selectGeoLinks,
-    (state) => state.settings.geoResolution.selected,
+    selectGeoResolution,
     (state) => state.settings.primaryVariable.selected,
     (state) => state.settings.groupByVariable.selected,
     (state, props) => props.groupByValue

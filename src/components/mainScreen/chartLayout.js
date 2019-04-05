@@ -37,16 +37,23 @@ const getTablesToRender = (groupByCategories) => {
   ]);
 };
 
-const getMapsToRender = ({settings, geoData}) => {
+const getMapsToRender = (groupByCategories) => {
   /* calculate a list of all the maps to render... */
+  if (groupByCategories) {
+    return groupByCategories.map((groupByValue) => (
+      <Geo
+        key={`map_${groupByValue}`}
+        width={geoDimensions.minWidth}
+        height={geoDimensions.minHeight}
+        groupByValue={groupByValue}
+      />
+    ));
+  }
   return ([
     <Geo
       key={"mainMap"}
       width={geoDimensions.minWidth}
       height={geoDimensions.minHeight}
-      variable={settings.primaryVariable.selected}
-      geoResolution={settings.geoResolution.selected}
-      geoData={geoData}
     />
   ]);
 };
@@ -58,7 +65,7 @@ const ChartLayout = (props) => {
   }
 
   const tables = getTablesToRender(props.groupByCategories);
-  const maps = getMapsToRender({...props});
+  const maps = getMapsToRender(props.groupByCategories);
   const renderList = [];
   tables.forEach((t) => renderList.push(t));
   maps.forEach((m) => renderList.push(m));

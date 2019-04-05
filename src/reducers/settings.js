@@ -59,4 +59,11 @@ const settings = (state = initialState, action) => {
   }
 };
 
+export const selectGeoResolution = (state) => {
+  if (state.settings.geoResolution && state.settings.geoResolution.selected) {
+    return state.settings.geoResolution.selected;
+  }
+  return false;
+};
+
 export default settings;

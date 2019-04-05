@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useRef, useEffect} from 'react';
+import { connect } from "react-redux";
 import styled from 'styled-components';
-import { getDemes } from "../../utils/processGeoData";
-
+import { selectDataForTable } from "../../reducers/privateData";
+import { selectGeoResolution } from "../../reducers/settings";
+import { renderMap } from "./render";
 
 export const geoDimensions = {
   minWidth: 300,
@@ -10,7 +12,7 @@ export const geoDimensions = {
   maxHeight: 1200
 };
 
-const Placeholder = styled.div`
+const Container = styled.div`
   background-color: #84A5C7;
   min-width: ${(props) => props.width}px;
   max-width: ${(props) => props.width}px;
@@ -19,15 +21,26 @@ const Placeholder = styled.div`
   font-size: 20px;
 `;
 
-const Geo = ({variable, geoResolution, geoData, width, height}) => {
+const Geo = ({width, height, data, geoResolution}) => {
+  const refElement = useRef(null);
+
+  useEffect(() =>
+    renderMap({ref: refElement.current, width, height, data, geoResolution})
+  );
+
   return (
-    <Placeholder width={width} height={height}>
-      <div>MAP OF SEATTLE</div>
-      <div>{`resolution: ${geoResolution.label} (${getDemes({geoData, geoResolution}).length} demes)`}</div>
-      <div>{`variable: ${variable.label}`}</div>
-      <div>{`display method: TO DO`}</div>
-    </Placeholder>
+    <Container width={width} height={height}>
+      <div ref={refElement}/>
+    </Container>
   );
 };
 
-export default Geo;
+
+const mapStateToProps = (state, props) => {
+  return {
+    geoResolution: selectGeoResolution(state),
+    data: selectDataForTable(state, props)
+  };
+};
+
+export default connect(mapStateToProps)(Geo);
