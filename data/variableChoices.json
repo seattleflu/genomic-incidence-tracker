@@ -30,18 +30,19 @@
   "primaryVariable": {
     "sidebarLabel": "Primary Variable",
     "choices": [
-      {"value": "flu_shot", "label": "Vaccination Status"},
-      {"value": "sex", "label": "Sex"},
-      {"value": "age", "label": "Age Groups"}
+      {"value": "flu_shot", "label": "Vaccination Status", "type": "boolean"},
+      {"value": "sex", "label": "Sex", "type": "categorical"},
+      {
+        "value": "age",
+        "label": "Age Groups",
+        "type": "continuous",
+        "bins": [[0, 5, "<5"], [5, 16, "5-15"], [16, 31, "16-30"], [31, 200, ">30"]]
+      }
     ]
   },
   "groupByVariable": {
     "sidebarLabel": "Group By",
-    "choices": [
-      {"value": "vaxStatus", "label": "Vaccination Status"},
-      {"value": "sex", "label": "Sex"},
-      {"value": "age", "label": "Age Groups"}
-    ],
+    "useChoicesOf": "primaryVariable",
     "unset": true
   }
 }

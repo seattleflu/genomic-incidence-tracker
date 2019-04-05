@@ -16,7 +16,15 @@ export const initialState = {
 
 const setAvailableData = (existingState, data, urlQuery) => {
   const state = Object.assign({}, existingState, data);
+
   for (const key of Object.keys(data)) {
+    if (state[key].useChoicesOf) {
+      const choicesToCopy = state[state[key].useChoicesOf].choices;
+      state[key].choices = choicesToCopy.map((choice) => Object.assign({}, choice));
+      delete state[key].useChoicesOf;
+    }
+
+
     if (state[key].unset) {
       state[key].selected = null;
       delete state[key].unset;
