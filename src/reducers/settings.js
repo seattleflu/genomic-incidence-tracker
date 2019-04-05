@@ -24,7 +24,6 @@ const setAvailableData = (existingState, data, urlQuery) => {
       delete state[key].useChoicesOf;
     }
 
-
     if (state[key].unset) {
       state[key].selected = null;
       delete state[key].unset;

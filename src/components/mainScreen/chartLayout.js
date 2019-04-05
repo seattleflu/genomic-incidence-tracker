@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import styled from 'styled-components';
 import Table, { tableDimensions } from "../table";
 import Geo, { geoDimensions } from "../geo";
+import { selectCategoriesForGroupByVariable } from "../../reducers/privateData";
 
 /* Container will hold all the individual tables and/or maps */
 const Container = styled.div`
@@ -15,8 +16,18 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.mainBackground};
 `;
 
-const getTablesToRender = () => {
+const getTablesToRender = (groupByCategories) => {
   /* calculate a list of all the tables to render... */
+  if (groupByCategories) {
+    return groupByCategories.map((groupByValue) => (
+      <Table
+        key={`table_${groupByValue}`}
+        width={tableDimensions.minWidth}
+        height={tableDimensions.minHeight}
+        groupByValue={groupByValue}
+      />
+    ));
+  }
   return ([
     <Table
       key={"mainTable"}
@@ -46,7 +57,7 @@ const ChartLayout = (props) => {
     return null;
   }
 
-  const tables = getTablesToRender({...props});
+  const tables = getTablesToRender(props.groupByCategories);
   const maps = getMapsToRender({...props});
   const renderList = [];
   tables.forEach((t) => renderList.push(t));
@@ -63,8 +74,9 @@ const ChartLayout = (props) => {
 const mapStateToProps = (state) => {
   /* use Memoized Selectors (library: reselect) for complex transforms */
   return {
+    groupByCategories: selectCategoriesForGroupByVariable(state),
     settings: state.settings,
-    geoData: state.geoData /* could be injected to the map / table instead */
+    geoData: state.geoData /* will be injected to the map / table instead */
   };
 };
 

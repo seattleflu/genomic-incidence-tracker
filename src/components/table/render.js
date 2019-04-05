@@ -5,28 +5,40 @@ import { axisBottom, axisLeft } from "d3-axis";
 import { stack } from "d3-shape";
 import { interpolateSpectral } from "d3-scale-chromatic";
 
-export const useD3ToRenderTable = ({ref, width, height, data}) => {
-  /**
-   * a custom react hook to render a D3 table
-   * right now it rerenders everything
-   * every time the react component receives different props,
-   * however we can optimise it here via prop comparisons to just perform
-   * the relevent D3 imperitive commands (this is how we would do transitions etc)
-   *
-   * See https://observablehq.com/@jotasolano/flu-incidence/2 for prototype on which this is based
-   */
-
-  if (!data) {
-    return null;
+/**
+ * a function to render a D3 table, intended to be called from a useEffect hook
+ *
+ * right now it rerenders everything every time the react component receives different props,
+ * however we can optimise it here via prop comparisons to just perform
+ * the relevent D3 imperitive commands (this is how we would do transitions etc)
+ * (this is better than using a second argument to "useEffect")
+ *
+ * See https://observablehq.com/@jotasolano/flu-incidence/2 for prototype on which this is based
+ *
+ * Note: this can't be a custom hook unless you use a different mechanism
+ * to store the "ref". This is due to the hook running before the initial
+ * render, thus ref===null. Calling this inside "useEffect" causes it to
+ * run after each render. An alternative would be to use a different mechanism
+ * to store the ref such that the component reran when it was set. See example here:
+ * https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
+ *
+ */
+export const renderD3Table = ({ref, width, height, data}) => {
+  console.log("renderD3Table");
+  if (!data || !ref) {
+    return undefined;
   }
-  const {categories, demes, flatData, maxYValue} = data;
+  const {categories, demes, flatData, maxYValue, primaryVariable, groupByVariable, groupByValue} = data;
+
+  const titleText = `${primaryVariable.label}${groupByVariable ? ` with ${groupByVariable.label} restricted to ${groupByValue}` : ""}`;
 
   const dims = {
     x1: 120, /* left margin, measured L-R */
     x2: width - 140, /* right margin, measured L-R */
-    y1: 40, /* top margin, measured T-B */
-    y2: height - 50, /* bottom margin, measured T-B */
-    yLegend: 30
+    y1: 70, /* top margin, measured T-B */
+    y2: height - 30, /* bottom margin, measured T-B */
+    yTitle: 30,
+    yLegend: 60
   };
   dims.width = dims.x2 - dims.x1;
   dims.height = dims.y2 - dims.y1;
@@ -119,4 +131,12 @@ export const useD3ToRenderTable = ({ref, width, height, data}) => {
     .attr("transform", `translate(${dims.x1},${dims.yLegend})`)
     .call(legend);
 
+  svg.append("g")
+    .attr("class", "title")
+    .attr("transform", `translate(${dims.x1},${dims.yTitle})`)
+    .append("text")
+    .text(titleText);
+
+
+  return undefined;
 };

@@ -16,6 +16,9 @@ export const selectDemes = (state) => {
   return state.geoData[state.settings.geoResolution.selected.value].demes;
 };
 
-export const selectGeoLinks = (state) => state.geoData.links;
+export const selectGeoLinks = (state) => {
+  if (!state.geoData) return false;
+  return state.geoData.links;
+}
 
 export default geoDataReducer;
