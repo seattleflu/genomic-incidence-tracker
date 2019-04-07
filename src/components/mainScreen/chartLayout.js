@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import styled from 'styled-components';
 import Table, { tableDimensions } from "../table";
 import Geo, { geoDimensions } from "../geo";
-import { selectCategoriesForGroupByVariable } from "../../reducers/privateData";
+import { selectCategoriesForGroupByVariable } from "../../reducers/results";
 import TableMapToggle from "./tableMapToggle";
 
 /* Container will hold all the individual tables and/or maps */

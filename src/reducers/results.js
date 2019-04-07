@@ -7,9 +7,9 @@ import { selectGeoResolution } from "./settings";
  * The name of this reducer will change as we better understand what data
  * can be shared with the client.
  */
-const privateDataReducer = (state = null, action) => {
+const resultsReducer = (state = null, action) => {
   switch (action.type) {
-    case types.SET_PRIVATE_DATA:
+    case types.SET_RESULTS:
       return action.data;
     default:
       return state;
@@ -19,7 +19,7 @@ const privateDataReducer = (state = null, action) => {
 
 /**
  * Extract the variable from the data point and convert to a category label.
- * @param {object} data an element of the privateData array
+ * @param {object} data an element of the results array
  * @param {object} variable a chosen variable (primary or group-by)
  */
 const _variableToCategory = (data, variable) => {
@@ -43,9 +43,9 @@ const _variableToCategory = (data, variable) => {
   return category;
 };
 
-const _convertToFlatFormat = (privateData, demes, categories, geoLinks, geoResolution, variable, filterVariable, filterCategoryToMatch) => {
+const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolution, variable, filterVariable, filterCategoryToMatch) => {
   /* must guard against non-available data */
-  if (!privateData || !variable) {
+  if (!results || !variable) {
     return false;
   }
   /* create an array of processed data -- each entry is {value: A, deme: B}
@@ -57,7 +57,7 @@ const _convertToFlatFormat = (privateData, demes, categories, geoLinks, geoResol
   */
   const dataPoints = [];
   let missingDataCount = 0;
-  privateData.forEach((d) => {
+  results.forEach((d) => {
     try {
       /* if filterVariable is set (the "groupByVariable") then we only want
       to consider points which match this */
@@ -106,9 +106,9 @@ const _convertToFlatFormat = (privateData, demes, categories, geoLinks, geoResol
   ];
 };
 
-const getCategories = (privateData, variable) => {
+const getCategories = (results, variable) => {
   /* must guard against non-available data */
-  if (!privateData || !variable) {
+  if (!results || !variable) {
     return false;
   }
   console.log("SELECTOR selectCategoriesFor:", variable.value);
@@ -117,7 +117,7 @@ const getCategories = (privateData, variable) => {
     categories = ["Yes", "No"];
   } else if (variable.type === "categorical") {
     categories = [];
-    privateData.forEach((d) => {
+    results.forEach((d) => {
       const value = d[variable.value];
       if (value && !categories.includes(value)) {
         categories.push(value);
@@ -133,7 +133,7 @@ const getCategories = (privateData, variable) => {
 
 export const selectCategoriesForPrimaryVariable = createSelector(
   [
-    (state) => state.privateData,
+    (state) => state.results,
     (state) => state.settings.primaryVariable.selected
   ],
   getCategories
@@ -141,7 +141,7 @@ export const selectCategoriesForPrimaryVariable = createSelector(
 
 export const selectCategoriesForGroupByVariable = createSelector(
   [
-    (state) => state.privateData,
+    (state) => state.results,
     (state) => state.settings.groupByVariable.selected
   ],
   getCategories
@@ -153,7 +153,7 @@ export const selectCategoriesForGroupByVariable = createSelector(
  */
 export const selectDataForTable = createSelector(
   [
-    (state) => state.privateData,
+    (state) => state.results,
     selectCategoriesForPrimaryVariable,
     selectDemes,
     selectGeoLinks,
@@ -162,12 +162,12 @@ export const selectDataForTable = createSelector(
     (state) => state.settings.groupByVariable.selected,
     (state, props) => props.groupByValue
   ],
-  (privateData, categories, demes, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue) => {
-    if (!categories.length || !demes || !privateData) {
+  (results, categories, demes, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue) => {
+    if (!categories.length || !demes || !results) {
       return false;
     }
     console.log("SELECTOR selectDataForTable");
-    const [flatData, maxYValue] = _convertToFlatFormat(privateData, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
+    const [flatData, maxYValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
     return {
       demes,
       flatData,
@@ -180,5 +180,5 @@ export const selectDataForTable = createSelector(
   }
 );
 
-export default privateDataReducer;
+export default resultsReducer;
 

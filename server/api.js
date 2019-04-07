@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-
+const { log, warn } = require("./utils");
 /*
  * This file contains the API handlers for the genomic incidence mapper
  * They are used during development by the server here (./index.js)
@@ -39,13 +39,19 @@ const getGeoJsons = async (req, res) => {
   res.json(JSON.parse(fileContents));
 };
 
-const localOnlyGetPrivateData = async (req, res) => {
-  /* the JSON file here is (not yet) for public release, so it's stored in
-   * the gitignored dataPrivate directory.
-   *
-   * Keys match ???
+const getResults = async (req, res) => {
+  /* Due to current privacy concerns, no real results are committed
+   * If the file "./dataPrivate/example-data-export.json" exists ("dataPrivate" is a gitignored directory)
+   * then it is used, else a mock data file is used (this is committed, it is not real data)
    */
-  const fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/example-data-export.json"), 'utf8');
+  let fileContents;
+  try {
+    fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/example-data-export.json"), 'utf8');
+    warn("getResults: Fetching the private results file ./dataPrivate/example-data-export.json. Ensure this is not committed.");
+  } catch (err) {
+    fileContents = fs.readFileSync(path.resolve(__dirname, "../data/results.json"), 'utf8');
+    log("getResults: Fetching ./data/results.json");
+  }
   res.json(JSON.parse(fileContents));
 };
 
@@ -54,7 +60,7 @@ const addHandlers = (app) => {
   app.get("/getData", getDataExample);
   app.get("/getAvailableVariables", getAvailableVariables);
   app.get("/getGeoJsons", getGeoJsons);
-  app.get("/localOnlyGetPrivateData", localOnlyGetPrivateData);
+  app.get("/getResults", getResults);
 };
 
 module.exports = {

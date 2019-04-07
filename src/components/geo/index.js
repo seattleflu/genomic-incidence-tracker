@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
-import { selectDataForTable } from "../../reducers/privateData";
+import { selectDataForTable } from "../../reducers/results";
 import { selectGeoResolution } from "../../reducers/settings";
 import { renderMap } from "./render";
 

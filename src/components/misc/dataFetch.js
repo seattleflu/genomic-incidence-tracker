@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { getAvailableVariables, getGeoJsons, localOnlyGetPrivateData } from "../../actions/fetchData";
+import { getAvailableVariables, getGeoJsons, getResults } from "../../actions/fetchData";
 
 const DataFetch = (fetchFunctions) => {
   useEffect(() => {
@@ -15,13 +15,13 @@ const DataFetch = (fetchFunctions) => {
 DataFetch.propTypes = {
   getAvailableVariables: PropTypes.func.isRequired,
   getGeoJsons: PropTypes.func.isRequired,
-  localOnlyGetPrivateData: PropTypes.func.isRequired
+  getResults: PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = { // https://react-redux.js.org/using-react-redux/connect-mapdispatch
   getAvailableVariables,
   getGeoJsons,
-  localOnlyGetPrivateData
+  getResults
 };
 
 export default connect(null, mapDispatchToProps)(DataFetch);
