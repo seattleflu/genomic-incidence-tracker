@@ -37,7 +37,7 @@ If "real" data is available at "./dataPrivate/example-data-export.json" (which i
 Note that all data formats & APIs are in development and will change.
 
 
-## Development Server
+## Testing Server
 This repo is running as a heroku server at https://genomic-incidence-tracker.herokuapp.com
 
 
@@ -65,6 +65,30 @@ In the future we may choose to store state at the root level, e.g. using a [useR
 But for now I think redux (and the provided dev tools) is the right choice.
 
 
+### Selectors
+Selectors are a conduit to pass data between the reducers (redux store) and components.
+They allow the shape of data stored in the reducers to change without having to rewrite component logic.
+For instance:
+
+```js
+// REDUCER
+export const selectDemes = (state) => {
+  // compute available demes from redux state
+  return demes;
+};
+// COMPONENT
+const mapStateToProps = (state, props) => {
+  return {
+    demes: selectDemes(state, props)
+  };
+};
+```
+
+Most of the time, this is the best place to transform data.
+If the transforms become expensive, these selectors can be memoised, meaning they do not rerun unless their arguments have changed.
+We use [reselect](https://github.com/reduxjs/reselect) for this.
+
+
 ### Styled Components
 We recently started using these in Auspice and have found them much superior to the previous situation which was a mixture of CSS, "global" styles imported into files, and component-specific inline styles.
 Similar to state management, there are plenty of articles about CSS-in-JS, both good and bad.
@@ -81,14 +105,18 @@ Libraries: [mapbox-gl](https://www.npmjs.com/package/mapbox-gl) -- used in [the 
 
 
 ### D3 - React
-I'm sure we'll use D3 to render at least some of the visualisations.
-The interface between react & D3 is/has been a source of a number of auspice bugs -- for instance, if a react update wants to change both colour and shape, then running 
+Ract hooks have vastly improved the react-d3 interface.
+We are currently writing all D3 (rendering) code for each chart inside a `useEffect` hook.
+See `src/components/table/*` for examples.
+
+
+The interface between react & D3 has been a source of a number of auspice bugs -- for instance, if a react update wants to change both colour and shape, then running 
 ```js
 selection.style("fill", (d) => d.fill);
 selection.style("stroke", (d) => d.stroke);
 ```
 can lead to unexpected results! (It's even worse if transitions are happening).
-We've had much more success using a single "update" function ([example](https://github.com/nextstrain/auspice/blob/master/src/components/entropy/entropyD3.js#L57)), which acts as a single interface between react & D3.
+By using a single "update" call inside the `useEffect` hook this should be avoided. (Auspice class-based example [here](https://github.com/nextstrain/auspice/blob/master/src/components/entropy/entropyD3.js#L57).)
 
 
 ### Mobile
@@ -133,10 +161,21 @@ The current implementation sources all API handlers from `./server/api.js`.
 These handlers should be easily imported into another server -- e.g. the [current seattleflu.org server](https://github.com/seattleflu/website/blob/master/server.js) -- as needed in the future. 
 One example API is provided: localhost:4000/getData or https://genomic-incidence-tracker.herokuapp.com/getData
 
-## Code Structure
+## File Structure
 
-* `./server/index.js` - The main CLI interface to running the project.
-* `./server/api.js` - The server API handlers
+> Note that the data structures and APIs have not been finalised.
+
+* `./data/* ` - Data files (geoJSON, mock-results etc)
+* `./privateData/*` - Local, non-committed, data files (this is gitignored).
+* `./dist/*` - Transpiled JS code. Gitignored.
+* `./server/*` - The CLI interface to running the app & helper files.
+* `./src/*` - All client javascript code
+  * `components/*` - All React components
+  * `reducers/*` - Redux reducers
+  * `actions/*` - Redux actions
+  * `middleware/*` - Redux middleware
+  * `styles/*` - Themes etc (made available to components using `styled-components`)
+  * `utils/*` - Misc functions etc
 
 
 ## License and copyright
