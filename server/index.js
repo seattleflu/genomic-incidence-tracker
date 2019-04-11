@@ -11,6 +11,7 @@ const addHandlers = require("./api").addHandlers;
 const compression = require('compression');
 const nakedRedirect = require('express-naked-redirect');
 const expressStaticGzip = require("express-static-gzip");
+const sslRedirect = require("heroku-ssl-redirect");
 
 /* COMMAND LINE ARGUMENTS */
 const parser = new argparse.ArgumentParser({
@@ -77,6 +78,7 @@ if (args.subcommand === "build") {
   /* some settings are not used in dev mode */
   if (args.subcommand === "view") {
     app.use(compression());
+    app.use(sslRedirect());
     app.use(nakedRedirect({reverse: true})); /* redirect www.name.org to name.org */
     app.get("/favicon.png", (req, res) => {res.sendFile(path.join(baseDir, "favicon.png"));});
     const distDir = path.join(baseDir, "dist");
