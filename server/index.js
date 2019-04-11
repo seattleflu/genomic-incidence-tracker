@@ -112,15 +112,22 @@ if (args.subcommand === "build") {
     ));
   }
 
-  /* add Auth handlers -- see "./auth.js" for more details */
-  auth.addHandlers(app);
+  /* Set up Auth and add routehandlers -- see "./auth.js" for more details */
+  auth.setUp({app});
+  auth.addHandlers({app});
 
   /* add API handlers -- see "./api.js" for more details */
-  addHandlers(app);
+  addHandlers({app, jwtMiddleware: auth.jwtMiddleware});
+
   /* serve index.html (which has the client JS bundle) for any unhandled requests */
   /* this must be the last "get" handler, else the "*" swallows all other requests */
   app.get("*", (req, res) => {
     res.sendFile(path.join(baseDir, "index.html"));
+  });
+
+  /* generic error handling for _any_ route -- this is _only_ called if there is an error */
+  app.use((err, req, res, next) => { // eslint-disable-line
+    utils.warn(err.message);
   });
 
 
