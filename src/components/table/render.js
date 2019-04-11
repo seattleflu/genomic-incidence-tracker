@@ -24,7 +24,7 @@ import { interpolateSpectral } from "d3-scale-chromatic";
  *
  */
 export const renderD3Table = ({ref, width, height, data}) => {
-  console.log("renderD3Table");
+  // console.log("renderD3Table");
   if (!data || !ref) {
     return undefined;
   }

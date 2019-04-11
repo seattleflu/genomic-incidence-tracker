@@ -11,6 +11,9 @@ const addHandlers = require("./api").addHandlers;
 const compression = require('compression');
 const nakedRedirect = require('express-naked-redirect');
 const expressStaticGzip = require("express-static-gzip");
+const sslRedirect = require("heroku-ssl-redirect");
+const bodyParser = require('body-parser');
+const auth = require("./auth");
 
 /* COMMAND LINE ARGUMENTS */
 const parser = new argparse.ArgumentParser({
@@ -74,15 +77,21 @@ if (args.subcommand === "build") {
   const baseDir = path.resolve(__dirname, "..");
   const app = express();
   app.set('port', process.env.PORT || 4000);
+  app.use(bodyParser.urlencoded({extended: false})); // parse application/x-www-form-urlencoded
+  app.use(bodyParser.json()); // parse application/json
+  app.enable('trust proxy');
+
   /* some settings are not used in dev mode */
   if (args.subcommand === "view") {
     app.use(compression());
+    app.use(sslRedirect());
     app.use(nakedRedirect({reverse: true})); /* redirect www.name.org to name.org */
     app.get("/favicon.png", (req, res) => {res.sendFile(path.join(baseDir, "favicon.png"));});
     const distDir = path.join(baseDir, "dist");
     app.use("/dist", expressStaticGzip(distDir));
     app.use(express.static(distDir));
   }
+
 
   /* COMPILE CLIENT IN DEV MODE WITH WEBPACK (IF NEEDED) */
   if (args.subcommand === "develop") {
@@ -103,13 +112,22 @@ if (args.subcommand === "build") {
     ));
   }
 
+  /* Set up Auth and add routehandlers -- see "./auth.js" for more details */
+  auth.setUp({app});
+  auth.addHandlers({app});
 
   /* add API handlers -- see "./api.js" for more details */
-  addHandlers(app);
+  addHandlers({app, jwtMiddleware: auth.jwtMiddleware});
+
   /* serve index.html (which has the client JS bundle) for any unhandled requests */
   /* this must be the last "get" handler, else the "*" swallows all other requests */
   app.get("*", (req, res) => {
     res.sendFile(path.join(baseDir, "index.html"));
+  });
+
+  /* generic error handling for _any_ route -- this is _only_ called if there is an error */
+  app.use((err, req, res, next) => { // eslint-disable-line
+    utils.warn(err.message);
   });
 
 

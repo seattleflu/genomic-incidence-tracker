@@ -111,7 +111,7 @@ const getCategories = (results, variable) => {
   if (!results || !variable) {
     return false;
   }
-  console.log("SELECTOR selectCategoriesFor:", variable.value);
+  // console.log("SELECTOR selectCategoriesFor:", variable.value);
   let categories;
   if (variable.type === "boolean") {
     categories = ["Yes", "No"];
@@ -166,7 +166,7 @@ export const selectDataForTable = createSelector(
     if (!categories.length || !demes || !results) {
       return false;
     }
-    console.log("SELECTOR selectDataForTable");
+    // console.log("SELECTOR selectDataForTable");
     const [flatData, maxYValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
     return {
       demes,

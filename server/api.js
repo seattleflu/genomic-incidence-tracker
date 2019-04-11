@@ -1,12 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-const { log, warn } = require("./utils");
+const { log, warn, verbose } = require("./utils");
 /*
  * This file contains the API handlers for the genomic incidence mapper
  * They are used during development by the server here (./index.js)
  * For the actual production site they may be imported by the seattleflu.org server
  * (assuming this app is located at seattleflu.org/tracker or similar)
  * This is why we organise them into a seperate file.
+ * See also: "./auth.js"
  */
 
 const getDataExample = async (req, res) => {
@@ -43,8 +44,12 @@ const getResults = async (req, res) => {
   /* Due to current privacy concerns, no real results are committed
    * If the file "./dataPrivate/example-data-export.json" exists ("dataPrivate" is a gitignored directory)
    * then it is used, else a mock data file is used (this is committed, it is not real data)
+   *
+   * Note: This middleware is not an error handler (only 2 arguments) -- if there was an error in previous
+   * middleware it will be skipped.
    */
   let fileContents;
+  // console.log("getResults HEADERS", req.headers);
   try {
     fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/example-data-export.json"), 'utf8');
     warn("getResults: Fetching the private results file ./dataPrivate/example-data-export.json. Ensure this is not committed.");
@@ -52,15 +57,16 @@ const getResults = async (req, res) => {
     fileContents = fs.readFileSync(path.resolve(__dirname, "../data/results.json"), 'utf8');
     log("getResults: Fetching ./data/results.json");
   }
-  res.json(JSON.parse(fileContents));
+  return res.json(JSON.parse(fileContents));
 };
 
 
-const addHandlers = (app) => {
+const addHandlers = ({app, jwtMiddleware}) => {
   app.get("/getData", getDataExample);
   app.get("/getAvailableVariables", getAvailableVariables);
   app.get("/getGeoJsons", getGeoJsons);
-  app.get("/getResults", getResults);
+  /* currently only "/getResults" requires a JWT check */
+  app.get("/getResults", jwtMiddleware, getResults);
 };
 
 module.exports = {
