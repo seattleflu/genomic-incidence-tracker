@@ -3,3 +3,5 @@ export const CHANGE_SETTING = "CHANGE_SETTING";
 export const SET_GEO_DATA = "SET_GEO_DATA";
 export const CHANGE_SCREEN = "CHANGE_SCREEN";
 export const SET_RESULTS = "SET_RESULTS";
+export const AUTH_SUCCESS = "AUTH_SUCCESS";
+export const AUTH_FAILED = "AUTH_FAILED";

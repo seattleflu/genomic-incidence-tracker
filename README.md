@@ -20,15 +20,18 @@ If you use conda, you can run:
 ```
 conda env create -f environment.yml
 ```
-Install dependencies:
+Install dependencies etc:
 ```
 npm install
+source scripts/set_env_vars.sh ## only for local instances
 ```
 Run:
 ```
 npm run develop # development mode
 npm run build && npm run view # production mode
 ```
+
+Username: "local", password: "aaa" (local development only)
 
 ### Results files
 Due to current privacy concerns, no real results are committed to this repo.
@@ -88,6 +91,12 @@ Most of the time, this is the best place to transform data.
 If the transforms become expensive, these selectors can be memoised, meaning they do not rerun unless their arguments have changed.
 We use [reselect](https://github.com/reduxjs/reselect) for this.
 
+### Authentication
+We are currently using basic authentication over HTTPS to log in.
+Currently there is only one calid username/password, stored as environment variables and accessed by the server (this is why it's necessary to run `source scripts/set_env_vars.sh` locally).
+The heroku server has different values here (which aren't public).
+
+Authenticated users are supplied with a JWT which allows someone to remain logged in and authenticate API calls (TO DO).
 
 ### Styled Components
 We recently started using these in Auspice and have found them much superior to the previous situation which was a mixture of CSS, "global" styles imported into files, and component-specific inline styles.

@@ -12,6 +12,8 @@ const compression = require('compression');
 const nakedRedirect = require('express-naked-redirect');
 const expressStaticGzip = require("express-static-gzip");
 const sslRedirect = require("heroku-ssl-redirect");
+const bodyParser = require('body-parser');
+const auth = require("./auth");
 
 /* COMMAND LINE ARGUMENTS */
 const parser = new argparse.ArgumentParser({
@@ -75,6 +77,10 @@ if (args.subcommand === "build") {
   const baseDir = path.resolve(__dirname, "..");
   const app = express();
   app.set('port', process.env.PORT || 4000);
+  app.use(bodyParser.urlencoded({extended: false})); // parse application/x-www-form-urlencoded
+  app.use(bodyParser.json()); // parse application/json
+  app.enable('trust proxy');
+
   /* some settings are not used in dev mode */
   if (args.subcommand === "view") {
     app.use(compression());
@@ -85,6 +91,7 @@ if (args.subcommand === "build") {
     app.use("/dist", expressStaticGzip(distDir));
     app.use(express.static(distDir));
   }
+
 
   /* COMPILE CLIENT IN DEV MODE WITH WEBPACK (IF NEEDED) */
   if (args.subcommand === "develop") {
@@ -105,6 +112,8 @@ if (args.subcommand === "build") {
     ));
   }
 
+  /* add Auth handlers -- see "./auth.js" for more details */
+  auth.addHandlers(app);
 
   /* add API handlers -- see "./api.js" for more details */
   addHandlers(app);

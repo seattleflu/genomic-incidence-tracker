@@ -9,6 +9,8 @@ import DataFetch from "./misc/dataFetch";
 import MainScreen from "./mainScreen";
 import ReportScreen from "./reportScreen";
 import RawDataScreen from "./rawDataScreen";
+import Login from "./auth/login";
+import CheckAuthentication from "./auth/checkAuthentication";
 
 const renderScreen = (screen) => {
   if (screen === "main") {
@@ -25,13 +27,15 @@ const renderScreen = (screen) => {
 const App = ({screen}) => {
   return (
     <ErrorBoundary>
-      <DataFetch/>
-      <ThemeProvider theme={mainTheme}>
-        <>
-          <Header/>
-          {renderScreen(screen)}
-        </>
-      </ThemeProvider>
+      <CheckAuthentication logInComponent={<Login/>}>
+        <DataFetch/>
+        <ThemeProvider theme={mainTheme}>
+          <>
+            <Header/>
+            {renderScreen(screen)}
+          </>
+        </ThemeProvider>
+      </CheckAuthentication>
     </ErrorBoundary>
   );
 };

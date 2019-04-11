@@ -7,6 +7,7 @@ const { log, warn } = require("./utils");
  * For the actual production site they may be imported by the seattleflu.org server
  * (assuming this app is located at seattleflu.org/tracker or similar)
  * This is why we organise them into a seperate file.
+ * See also: "./auth.js"
  */
 
 const getDataExample = async (req, res) => {

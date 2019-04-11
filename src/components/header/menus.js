@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
+import LogOut from "./logOut";
 
 const Container = styled.div`
   color: ${(props) => props.theme.neutral[200]};
@@ -15,14 +16,9 @@ const Menus = () => {
   return (
     <Container>
       <Button>
-        {"X"}
+        {"???"}
       </Button>
-      <Button>
-        {"X"}
-      </Button>
-      <Button>
-        {"X"}
-      </Button>
+      <LogOut/>
     </Container>
   );
 };
