@@ -11,7 +11,7 @@ const Button = styled.button`
   font-size: 20px;
   border: none;
   cursor: pointer;
-  color: ${(props) => props.active ? props.theme.neutral[100] : props.theme.neutral[600]};
+  color: ${(props) => props.active ? props.theme.neutral[200] : props.theme.neutral[600]};
   background-color: inherit;
   font-weight: 400;
 `;

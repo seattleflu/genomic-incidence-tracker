@@ -12,7 +12,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-around;
   width: ${(props) => props.width+"px"};
   background-color: ${(props) => props.theme.mainBackground};
 `;
