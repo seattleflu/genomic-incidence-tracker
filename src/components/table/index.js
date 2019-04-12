@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
-import { selectDataForTable } from "../../reducers/results";
+import { makeSelectDataForChart } from "../../reducers/results";
 import { renderD3Table } from "./render";
 
 export const tableDimensions = {
@@ -31,10 +31,20 @@ const Table = (props) => {
   );
 };
 
-const mapStateToProps = (state, props) => {
-  return {
-    data: selectDataForTable(state, props)
+/* The "typical" mapStateToProps fn, which returns an object, runs each time a component updates
+ * This doesn't allow us to "create" a memoised selector from a factory, as it'd be created each time
+ * (this isn't a concern for a "normal" memoised selector which is only employed in one place)
+ * If mapStateToProps returns a fn, then it will be used to create an individual mapStateToProps function
+ * see https://github.com/reduxjs/reselect
+ */
+const makeMapStateToProps = () => {
+  const selectDataForChart = makeSelectDataForChart();
+  const mapStateToProps = (state, props) => {
+    return {
+      data: selectDataForChart(state, props)
+    };
   };
+  return mapStateToProps;
 };
 
-export default connect(mapStateToProps)(Table);
+export default connect(makeMapStateToProps)(Table);

@@ -1,6 +1,5 @@
 import * as types from "../actions/types";
 
-
 /* This reducer holds the variable choices & settings which are
  * rendered in the sidebar and control the visualisation,
  * as well as other settings.
@@ -63,6 +62,9 @@ const settings = (state = initialState, action) => {
       return state;
   }
 };
+
+/*                        S E L E C T O R S                            */
+/* These should be the _only_ way data is accessed by react components */
 
 export const selectGeoResolution = (state) => {
   if (state.settings.geoResolution && state.settings.geoResolution.selected) {

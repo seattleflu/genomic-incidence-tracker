@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
-import { selectDataForTable } from "../../reducers/results";
+import { makeSelectDataForChart } from "../../reducers/results";
 import { selectGeoResolution } from "../../reducers/settings";
 import { renderMap } from "./render";
 
@@ -34,11 +34,16 @@ const Geo = ({width, height, data, geoResolution}) => {
 };
 
 
-const mapStateToProps = (state, props) => {
-  return {
-    geoResolution: selectGeoResolution(state),
-    data: selectDataForTable(state, props)
+/* See comment in "../table/index.js" for why mapStateToProps is created this way */
+const makeMapStateToProps = () => {
+  const selectDataForChart = makeSelectDataForChart();
+  const mapStateToProps = (state, props) => {
+    return {
+      geoResolution: selectGeoResolution(state),
+      data: selectDataForChart(state, props)
+    };
   };
+  return mapStateToProps;
 };
 
-export default connect(mapStateToProps)(Geo);
+export default connect(makeMapStateToProps)(Geo);

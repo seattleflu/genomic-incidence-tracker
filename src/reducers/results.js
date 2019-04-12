@@ -4,8 +4,10 @@ import { selectDemes, selectGeoLinks} from "./geoData";
 import { selectGeoResolution } from "./settings";
 
 /**
- * The name of this reducer will change as we better understand what data
- * can be shared with the client.
+ * The name of this reducer may change as we better understand what data
+ * is available and in what formats. Currently there's no transforms
+ * done, the JSON data is just dumped here, but that may also change
+ * (this shouldn't be done until we have settled on an input data spec)
  */
 const resultsReducer = (state = null, action) => {
   switch (action.type) {
@@ -18,7 +20,10 @@ const resultsReducer = (state = null, action) => {
 
 
 /**
- * Extract the variable from the data point and convert to a category label.
+ * Extract the given variable from the given data point object.
+ * E.g. you want to get the subject's "age" from a singular data point.
+ *
+ * If the variable is continous then return the appropriate bin (aka category label)
  * @param {object} data an element of the results array
  * @param {object} variable a chosen variable (primary or group-by)
  */
@@ -43,6 +48,11 @@ const _variableToCategory = (data, variable) => {
   return category;
 };
 
+/**
+ * Mostly copied from https://observablehq.com/@jotasolano/flu-incidence/2.
+ * TO DO write documentation / break into smaller functions.
+ * This is where most data transformation currently happens so it needs to be well documented
+ */
 const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolution, variable, filterVariable, filterCategoryToMatch) => {
   /* must guard against non-available data */
   if (!results || !variable) {
@@ -106,6 +116,16 @@ const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolutio
   ];
 };
 
+/**
+ * What categories are present for a given variable in the dataset?
+ * E.g. for a continous variable, we want the binned labels.
+ *      for a binary trait we return "Yes" and "No"
+ *      for a categorical trait we return all categories (labels) in the data
+ * @param {Array} results Array of individual data points. Same format as JSON input.
+ * @param {Object} variable Variable to get categories for.
+ * @returns {Array} list of category names (strings)
+ * @throws if the variable type is not handled
+ */
 const getCategories = (results, variable) => {
   /* must guard against non-available data */
   if (!results || !variable) {
@@ -131,6 +151,9 @@ const getCategories = (results, variable) => {
   return categories;
 };
 
+/*                        S E L E C T O R S                            */
+/* These should be the _only_ way data is accessed by react components */
+
 export const selectCategoriesForPrimaryVariable = createSelector(
   [
     (state) => state.results,
@@ -148,37 +171,47 @@ export const selectCategoriesForGroupByVariable = createSelector(
 );
 
 /**
- * A memoised selector to return data for a table visualisation.
+ * A factory which returns a memoised selector.
+ * The selector gets data in a format desired for vizualizing a chart
+ * This is memoised as theres a data transform involved.
+ *
+ * This needs to be a factory as we (may) be using the selector in
+ * multiple components and each one needs "their own" selector, otherwise
+ * memoisation (with a cache size of 1) doesn't work.
+ * Note that mapStateToProps also needs to be a factory.
  * see https://github.com/reduxjs/reselect
  */
-export const selectDataForTable = createSelector(
-  [
-    (state) => state.results,
-    selectCategoriesForPrimaryVariable,
-    selectDemes,
-    selectGeoLinks,
-    selectGeoResolution,
-    (state) => state.settings.primaryVariable.selected,
-    (state) => state.settings.groupByVariable.selected,
-    (state, props) => props.groupByValue
-  ],
-  (results, categories, demes, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue) => {
-    if (!categories.length || !demes || !results) {
-      return false;
+export const makeSelectDataForChart = () => {
+  return createSelector(
+    [
+      (state) => state.results,
+      selectCategoriesForPrimaryVariable,
+      selectDemes,
+      selectGeoLinks,
+      selectGeoResolution,
+      (state) => state.settings.primaryVariable.selected,
+      (state) => state.settings.groupByVariable.selected,
+      (state, props) => props.groupByValue
+    ],
+    (results, categories, demes, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue) => {
+      if (!categories.length || !demes || !results) {
+        return false;
+      }
+      // console.log("SELECTOR (data for chart)", primaryVariable.value, groupByValue);
+      const [flatData, maxYValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
+      return {
+        demes,
+        flatData,
+        categories,
+        maxYValue,
+        primaryVariable,
+        groupByVariable,
+        groupByValue
+      };
     }
-    // console.log("SELECTOR selectDataForTable");
-    const [flatData, maxYValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
-    return {
-      demes,
-      flatData,
-      categories,
-      maxYValue,
-      primaryVariable,
-      groupByVariable,
-      groupByValue
-    };
-  }
-);
+  );
+};
+
 
 export default resultsReducer;
 

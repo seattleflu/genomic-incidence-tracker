@@ -20,6 +20,10 @@ const misc = (state = initialState, action) => {
   }
 };
 
+/*                        S E L E C T O R S                            */
+/* These should be the _only_ way data is accessed by react components */
+
+
 export const getLoginMessage = (state) => {
   if (!state.misc.loginFailedMessage) return "";
   return state.misc.loginFailedMessage;
