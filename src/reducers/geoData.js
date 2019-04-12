@@ -1,4 +1,5 @@
 import * as types from "../actions/types";
+import { selectGeoResolution } from "./settings";
 
 const geoDataReducer = (state = null, action) => {
   switch (action.type) {
@@ -15,13 +16,23 @@ const geoDataReducer = (state = null, action) => {
 export const selectDemes = (state) => {
   /* this will replace the getDemes function */
   /* should be turned into a memoised selector if it becomes more complex */
-  if (!state.settings.geoResolution) return false;
-  return state.geoData[state.settings.geoResolution.selected.value].demes;
+  const geoResolution = selectGeoResolution(state);
+  if (!geoResolution) return false;
+  return state.geoData[geoResolution.value].demes;
 };
 
 export const selectGeoLinks = (state) => {
   if (!state.geoData) return false;
   return state.geoData.links;
+};
+
+/* select the data in GeoJSON format for the current geographic
+ * resolution
+ */
+export const selectGeoJsonData = (state) => {
+  const geoResolution = selectGeoResolution(state);
+  if (!geoResolution) return false;
+  return state.geoData[geoResolution.value];
 };
 
 export default geoDataReducer;

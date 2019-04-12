@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import styled from 'styled-components';
 import { makeSelectDataForChart } from "../../reducers/results";
 import { selectGeoResolution } from "../../reducers/settings";
+import { selectGeoJsonData, selectGeoLinks } from "../../reducers/geoData";
 import { renderMap } from "./render";
 
 export const geoDimensions = {
@@ -21,11 +22,11 @@ const Container = styled.div`
   background-color: white;
 `;
 
-const Geo = ({width, height, data, geoResolution}) => {
+const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData}) => {
   const refElement = useRef(null);
 
   useEffect(() =>
-    renderMap({ref: refElement.current, width: width-2*margin, height: height-2*margin, data, geoResolution})
+    renderMap({ref: refElement.current, width: width-2*margin, height: height-2*margin, resultsData, geoJsonData, geoResolution, geoLinks})
   );
 
   return (
@@ -40,7 +41,9 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
       geoResolution: selectGeoResolution(state),
-      data: selectDataForChart(state, props)
+      geoJsonData: selectGeoJsonData(state),
+      geoLinks: selectGeoLinks(state),
+      resultsData: selectDataForChart(state, props)
     };
   };
   return mapStateToProps;
