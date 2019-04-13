@@ -5,24 +5,7 @@ import { scaleLinear, scaleSequential } from "d3-scale";
 import { interpolatePlasma } from "d3-scale-chromatic";
 import { axisBottom } from "d3-axis";
 
-/* TO DO -- we are simply using the selector designed for the table.
-   we should build a better one to avoid all the data transforming here!
-*/
-
 const unknownFill = "rgb(150, 150, 150)";
-
-/* this should be handled by a selector */
-const transformToPercentages = (categories, flatData) => {
-  const vizCategory = categories[0]; // TO DO -- how should we pick this?
-  const demePercs = {};
-  flatData.forEach((d) => {
-    const deme = d.key;
-    const total = categories.map((c) => d[c]).reduce((acc, cv) => acc+cv, 0);
-    demePercs[deme] = d[vizCategory] / total * 100;
-  });
-  return [vizCategory, demePercs];
-};
-
 
 /**
  * a function to render a mapbox / D3 map, intended to be called from a useEffect hook
@@ -38,7 +21,7 @@ const transformToPercentages = (categories, flatData) => {
 export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
 
-  const {primaryVariable, flatData, categories, groupByVariable, groupByValue} = resultsData;
+  const {primaryVariable, flatPercs, categories, groupByVariable, groupByValue} = resultsData;
 
   let mainTitle = primaryVariable.label;
   const secondaryTitle = groupByVariable ? `${groupByVariable.label} restricted to ${groupByValue}` : "";
@@ -79,8 +62,12 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
     mainTitle += " (viz not implemented)";
     makeInfo = (d) => `${getDemeName(d)}`;
   } else {
-    const [vizCategory, demePercs] = transformToPercentages(categories, flatData);
-    // const maxPerc = Object.keys(demePercs).reduce((res, deme) => demePercs[deme] > res ? demePercs[deme] : res, 0);
+    /* what category do we want to visualise? (e.g. % Male or % Female ?!?) */
+    const vizCategory = categories[0];
+    /* what are the values for this category for each deme? */
+    const demePercs = {};
+    flatPercs.forEach((d) => {demePercs[d.key] = d[vizCategory];});
+
     mainTitle += `. Showing % ${vizCategory}`;
 
     /* A D3 colour scale -- currently we only work with simple chloropleths */

@@ -23,28 +23,31 @@ import { interpolateSpectral } from "d3-scale-chromatic";
  * https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
  *
  */
-export const renderD3Table = ({ref, width, height, data}) => {
+export const renderD3Table = ({ref, width, height, data, showAsPerc}) => {
   // console.log("renderD3Table");
   if (!data || !ref) {
     return undefined;
   }
-  const {categories, demes, flatData, maxYValue, primaryVariable, groupByVariable, groupByValue} = data;
+  const {categories, demes, flatData, flatPercs, maxValue, primaryVariable, groupByVariable, groupByValue} = data;
 
   const titleText = `${primaryVariable.label}${groupByVariable ? ` with ${groupByVariable.label} restricted to ${groupByValue}` : ""}`;
+
+  const dataForVisualising = (stack().keys(categories))(showAsPerc ? flatPercs : flatData);
+  const domainEndValue = showAsPerc ? 100 : maxValue;
 
   const dims = {
     x1: 120, /* left margin, measured L-R */
     x2: width - 140, /* right margin, measured L-R */
-    y1: 70, /* top margin, measured T-B */
-    y2: height - 30, /* bottom margin, measured T-B */
-    yTitle: 30,
-    yLegend: 60
+    y1: 45, /* top margin, measured T-B */
+    y2: height - 20, /* bottom margin, measured T-B */
+    yTitle: 15,
+    yLegend: 38
   };
   dims.width = dims.x2 - dims.x1;
   dims.height = dims.y2 - dims.y1;
 
   const xScale = scaleLinear()
-    .domain([0, maxYValue])
+    .domain([0, domainEndValue])
     .range([dims.x1, dims.x1 + dims.x2]);
 
   const xAxis = axisBottom(xScale)
@@ -113,7 +116,7 @@ export const renderD3Table = ({ref, width, height, data}) => {
   svg.append("g")
     .attr("class", "bars")
     .selectAll("g")
-      .data((stack().keys(categories))(flatData))
+      .data(dataForVisualising)
     .join("g")
       .attr("fill", (d, i) => colorScale(i))
       .attr("stroke", "white")

@@ -1,4 +1,4 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useRef, useEffect, useState} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
 import { makeSelectDataForChart } from "../../reducers/results";
@@ -17,17 +17,30 @@ const Container = styled.div`
   min-height: ${(props) => props.height - 2*margin}px;
   max-height: ${(props) => props.height - 2*margin}px;
   margin: ${margin}px;
+  position: relative;
+`;
+const Toggle = styled.button` /* to do: actually make this a toggle! */
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
 `;
 
 const Table = (props) => {
   const refElement = useRef(null);
+  const [percCountToggle, changePercCountToggle] = useState("perc");
 
   useEffect(() =>
-    renderD3Table({ref: refElement.current, width: props.width-2*margin, height: props.height-2*margin, data: props.data})
+    renderD3Table({ref: refElement.current, width: props.width-2*margin, height: props.height-2*margin, data: props.data, showAsPerc: percCountToggle==="perc"})
   );
 
   return (
-    <Container width={props.width} height={props.height} ref={refElement}/>
+    <Container width={props.width} height={props.height}>
+      <Toggle onClick={() => changePercCountToggle(percCountToggle === "count" ? "perc" : "count")}>
+        {`display ${percCountToggle}`}
+      </Toggle>
+      <div ref={refElement}/>
+    </Container>
   );
 };
 

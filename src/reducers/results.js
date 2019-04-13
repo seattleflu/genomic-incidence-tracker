@@ -50,8 +50,8 @@ const _variableToCategory = (data, variable) => {
 
 /**
  * Mostly copied from https://observablehq.com/@jotasolano/flu-incidence/2.
- * TO DO write documentation / break into smaller functions.
- * This is where most data transformation currently happens so it needs to be well documented
+ * The format of data returned ("flatData") is the same as the observable prototype
+ * however this needs to be revisited.
  */
 const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolution, variable, filterVariable, filterCategoryToMatch) => {
   /* must guard against non-available data */
@@ -93,7 +93,7 @@ const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolutio
   const filterMsg = filterVariable ? ` with ${filterVariable.value} filtered to ${filterCategoryToMatch}` : "";
   console.log(`Data transform for ${variable.value}${filterMsg}: ${dataPoints.length} points OK, ${missingDataCount} excluded`);
 
-  let maxYValue = 0;
+  let maxValue = 0; /* maximum count of data points in any deme */
   const flatData = demes.map((deme) => {
     const point = {key: deme};
     categories.forEach((category) => {point[category] = 0;});
@@ -104,17 +104,28 @@ const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolutio
         tmp++;
       }
     });
-    if (tmp > maxYValue) {
-      maxYValue = tmp;
+    if (tmp > maxValue) {
+      maxValue = tmp;
     }
     return point;
   });
 
   return [
     flatData,
-    maxYValue
+    maxValue
   ];
 };
+
+const _calcPercentages = (categories, flatData) => {
+  return flatData.map((d) => {
+    const total = categories.map((c) => d[c]).reduce((acc, cv) => acc+cv, 0);
+    const percs = {key: d.key};
+    categories.forEach((c) => {
+      percs[c] = parseInt(d[c] / total * 100, 10);
+    });
+    return percs;
+  });
+}
 
 /**
  * What categories are present for a given variable in the dataset?
@@ -198,12 +209,13 @@ export const makeSelectDataForChart = () => {
         return false;
       }
       // console.log("SELECTOR (data for chart)", primaryVariable.value, groupByValue);
-      const [flatData, maxYValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
+      const [flatData, maxValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
       return {
         demes,
         flatData,
+        flatPercs: _calcPercentages(categories, flatData),
         categories,
-        maxYValue,
+        maxValue,
         primaryVariable,
         groupByVariable,
         groupByValue
