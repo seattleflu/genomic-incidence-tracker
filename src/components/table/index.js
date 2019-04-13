@@ -28,16 +28,24 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
 
 const Table = (props) => {
   const refElement = useRef(null);
+  const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("perc");
 
   useEffect(() =>
-    renderD3Table({ref: refElement.current, width: props.width-2*margin, height: props.height-2*margin, data: props.data, showAsPerc: percCountToggle==="perc"})
+    renderD3Table({
+      domRef: refElement.current,
+      ref: ref.current,
+      width: props.width-2*margin,
+      height: props.height-2*margin,
+      data: props.data,
+      showAsPerc: percCountToggle==="perc"
+    })
   );
 
   return (
     <Container width={props.width} height={props.height}>
       <Toggle onClick={() => changePercCountToggle(percCountToggle === "count" ? "perc" : "count")}>
-        {`display ${percCountToggle}`}
+        {`display ${percCountToggle === "count" ? "perc" : "count"}`}
       </Toggle>
       <div ref={refElement}/>
     </Container>
