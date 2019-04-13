@@ -2,7 +2,7 @@ import { select } from "d3-selection";
 import 'd3-transition';
 import { geoPath, geoMercator } from "d3-geo";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { interpolateBlues } from "d3-scale-chromatic";
+import { interpolatePlasma } from "d3-scale-chromatic";
 import { axisBottom } from "d3-axis";
 
 /* TO DO -- we are simply using the selector designed for the table.
@@ -75,13 +75,13 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
     mainTitle += " (viz not implemented)";
   } else {
     const [vizCategory, demePercs] = transformToPercentages(categories, flatData);
-    const maxPerc = Object.keys(demePercs).reduce((res, deme) => demePercs[deme] > res ? demePercs[deme] : res, 0);
+    // const maxPerc = Object.keys(demePercs).reduce((res, deme) => demePercs[deme] > res ? demePercs[deme] : res, 0);
     mainTitle += `. Showing % ${vizCategory}`;
     /* Fn to extract the deme name from an individual geoJSON feature */
     const getDemeName = (d) => geoLinks[d.properties.GEOID][geoResolution.value];
 
     /* A D3 colour scale -- currently we only work with simple chloropleths */
-    const colourScale = scaleSequential(interpolateBlues).unknown("#ccc").domain([0, maxPerc]);
+    const colourScale = scaleSequential(interpolatePlasma).unknown("#ccc").domain([0, 100]);
 
     fill = (d) => {
       const deme = getDemeName(d);
