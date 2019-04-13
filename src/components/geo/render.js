@@ -1,4 +1,4 @@
-import { select } from "d3-selection";
+import { select, event as d3event } from "d3-selection";
 import 'd3-transition';
 import { geoPath, geoMercator } from "d3-geo";
 import { scaleLinear, scaleSequential } from "d3-scale";
@@ -35,8 +35,7 @@ const transformToPercentages = (categories, flatData) => {
  *
  * P.S. see the note on the JSDoc for renderD3Table
  */
-export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks}) => {
-
+export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
 
   const {primaryVariable, flatData, categories, groupByVariable, groupByValue} = resultsData;
@@ -66,22 +65,36 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
         .fitExtent([[dims.x1, dims.y1], [dims.x2-dims.x1, dims.y2-dims.y1]], geoJsonData)
     );
 
+  /* Fn to extract the deme name from an individual geoJSON feature */
+  const getDemeName = (d) => geoLinks[d.properties.GEOID][geoResolution.value];
+
+
   /* calculate fills, legends etc based on the data type */
   let fill; // will be passed to d3, so can be a string or a function receiving a data point
   let legend;
+  let makeInfo;
   if (categories.length !== 2) {
     console.warn(`Cannot display simple chloropleth for this ${primaryVariable.label} with ${categories.length} categories`);
     fill = unknownFill;
     mainTitle += " (viz not implemented)";
+    makeInfo = (d) => `${getDemeName(d)}`;
   } else {
     const [vizCategory, demePercs] = transformToPercentages(categories, flatData);
     // const maxPerc = Object.keys(demePercs).reduce((res, deme) => demePercs[deme] > res ? demePercs[deme] : res, 0);
     mainTitle += `. Showing % ${vizCategory}`;
-    /* Fn to extract the deme name from an individual geoJSON feature */
-    const getDemeName = (d) => geoLinks[d.properties.GEOID][geoResolution.value];
 
     /* A D3 colour scale -- currently we only work with simple chloropleths */
     const colourScale = scaleSequential(interpolatePlasma).unknown("#ccc").domain([0, 100]);
+
+    /* What should the hover info box display? */
+    makeInfo = (d) => {
+      const deme = getDemeName(d);
+      const value = parseInt(demePercs[deme], 10);
+      if (value !== +value) {
+        return `No data for ${deme}`;
+      }
+      return `${deme}: ${value}%`;
+    };
 
     fill = (d) => {
       const deme = getDemeName(d);
@@ -128,7 +141,9 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
     .append("path") /* the rendered shape */
     .attr("fill", fill)
     .attr("stroke", "white")
-    .attr("d", geoPathGenerator);
+    .attr("d", geoPathGenerator)
+    .on("mouseenter", (d) => {handleHoverOver(makeInfo(d), d3event.pageX, d3event.pageY);})
+    .on("mouseleave", handleHoverOut);
 
 
   /* L E G E N D */

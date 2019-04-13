@@ -6,7 +6,8 @@
 const neutral = {
   100: "#EDEFEF",
   200: "#C9CED0",
-  600: "#626D71"
+  600: "#626D71",
+  800: "#2A2F30"
 };
 
 export const mainTheme = {
