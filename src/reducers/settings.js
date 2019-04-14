@@ -73,4 +73,11 @@ export const selectGeoResolution = (state) => {
   return false;
 };
 
+export const selectPathogen = (state) => {
+  if (state.settings.pathogen && state.settings.pathogen.selected) {
+    return state.settings.pathogen.selected;
+  }
+  return false;
+};
+
 export default settings;

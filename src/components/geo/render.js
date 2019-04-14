@@ -21,7 +21,7 @@ const unknownFill = "rgb(150, 150, 150)";
 export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
 
-  const {primaryVariable, flatPercs, categories, groupByVariable, groupByValue} = resultsData;
+  const {primaryVariable, percentages, categories, groupByVariable, groupByValue} = resultsData;
 
   let mainTitle = primaryVariable.label;
   const secondaryTitle = groupByVariable ? `${groupByVariable.label} restricted to ${groupByValue}` : "";
@@ -66,7 +66,7 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
     const vizCategory = categories[0];
     /* what are the values for this category for each deme? */
     const demePercs = {};
-    flatPercs.forEach((d) => {demePercs[d.key] = d[vizCategory];});
+    percentages.forEach((d) => {demePercs[d.key] = d[vizCategory];});
 
     mainTitle += `. Showing % ${vizCategory}`;
 

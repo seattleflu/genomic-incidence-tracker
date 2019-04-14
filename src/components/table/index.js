@@ -29,7 +29,7 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
 const Table = (props) => {
   const refElement = useRef(null);
   const ref = useRef({}); /* see renderD3Table for description */
-  const [percCountToggle, changePercCountToggle] = useState("perc");
+  const [percCountToggle, changePercCountToggle] = useState("count");
 
   useEffect(() =>
     renderD3Table({

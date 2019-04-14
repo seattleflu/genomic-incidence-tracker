@@ -99,7 +99,7 @@ const getLegend = (categories, colorScale) => (svg) => {
     .selectAll("g")
     .data(categories)
     .join("g")
-    .attr("transform", (d, i) => `translate(${i * 90 + 30},${0})`);
+    .attr("transform", (d, i) => `translate(${i * 60 + 30},${0})`);
 
   g.append("rect")
     .attr("x", -16)
@@ -179,7 +179,8 @@ const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
  * The `ref` prop must be a `useRef` object. We use this to "save" information and
  * references with the knowledge that these will persist between calls. This is how
  * we can find out what updates / transitions are required. This requires us to code
- * the appropriate changes and either rerender or transition.
+ * the appropriate changes and either rerender or transition -- any uncaught cases
+ * will rerender the entire chart and display a console warning.
  *
  * See https://observablehq.com/@jotasolano/flu-incidence/2 for prototype on which this is based
  *
@@ -195,28 +196,32 @@ export const renderD3Table = ({domRef, ref, width, height, data, showAsPerc}) =>
   if (!data || !domRef) {
     return undefined;
   }
-  const {categories, demes, flatData, flatPercs, maxValue, primaryVariable, groupByVariable, groupByValue} = data;
+  const {pathogen, categories, demes, counts, percentages, maxValue, primaryVariable, groupByVariable, groupByValue} = data;
   const titleText = `${primaryVariable.label}${groupByVariable ? ` with ${groupByVariable.label} restricted to ${groupByValue}` : ""}`;
-  const dataForVisualising = (stack().keys(categories))(showAsPerc ? flatPercs : flatData);
+  const dataForVisualising = (stack().keys(categories))(showAsPerc ? percentages : counts);
   const domainEndValue = showAsPerc ? 100 : maxValue;
   const dims = getDims(width, height);
 
   if (!ref.svg) { /* initial rendering of the chart */
     initialRender(domRef, ref, width, height, dims, categories, demes, dataForVisualising, domainEndValue, titleText);
   } else if (ref.primaryVariable !== primaryVariable || ref.demes !== demes) {
-    /* we could transition here if we wanted to... */
+    /* we could transition here if we wanted to... for primary variable this isn't too hard and would look nice,
+    for deme changes you'd need to keep track of demes "in common" -- even though there really aren't any! */
     select(domRef).selectAll("*").remove();
     initialRender(domRef, ref, width, height, dims, categories, demes, dataForVisualising, domainEndValue, titleText);
-  } else if (ref.showAsPerc !== showAsPerc) {
+  } else if (ref.showAsPerc !== showAsPerc || ref.pathogen !== pathogen) {
     /* change from percentage x-axis to counts (or vice versa) */
     transitionXValues(ref, dims, categories, dataForVisualising, domainEndValue);
   } else {
-    console.log("unhandled useEffect call");
+    console.warn("unhandled useEffect call - rerendering");
+    select(domRef).selectAll("*").remove();
+    initialRender(domRef, ref, width, height, dims, categories, demes, dataForVisualising, domainEndValue, titleText);
   }
 
   /* save relevent "state" in `ref` so we can compare next time */
   ref.showAsPerc = showAsPerc;
   ref.primaryVariable = primaryVariable;
   ref.demes = demes;
+  ref.pathogen = pathogen;
   return undefined;
 };

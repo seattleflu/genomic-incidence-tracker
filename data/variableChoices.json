@@ -2,7 +2,13 @@
   "pathogen": {
     "sidebarLabel": "Pathogen",
     "choices": [
-      {"value": "ILI", "label": "ILI"}
+      {"value": "all", "label": "Influenza Like Illness"},
+      {"value": "h1n1pdm", "label": "influenza (A/H1N1)"},
+      {"value": "h3n2", "label": "influenza (A/H3N2)"},
+      {"value": "otherili", "label": "other"},
+      {"value": "rsva", "label": "RSV"},
+      {"value": "vic", "label": "influenza (B/Vic)"},
+      {"value": "yam", "label": "influenza (B/Yam)"}
     ]
   },
   "geoResolution": {
@@ -15,16 +21,16 @@
     ]
   },
   "dataSource": {
-    "sidebarLabel": "Data Source",
+    "sidebarLabel": "Data Source (to do)",
     "choices": [
       {"value": "raw", "label": "Raw Data"},
       {"value": "model", "label": "Modelling Results"}
     ]
   },
   "time": {
-    "sidebarLabel": "Time Frame",
+    "sidebarLabel": "Time Frame (to do)",
     "choices": [
-      {"value": "fixed", "label": "To Do"}
+      {"value": "fixed", "label": "week x"}
     ]
   },
   "primaryVariable": {
@@ -32,6 +38,7 @@
     "choices": [
       {"value": "flu_shot", "label": "Vaccination Status", "type": "boolean"},
       {"value": "sex", "label": "Sex", "type": "categorical"},
+      {"value": "pathogen", "label": "Pathogen", "type": "categorical"},
       {
         "value": "age",
         "label": "Age Groups",

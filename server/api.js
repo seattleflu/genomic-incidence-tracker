@@ -51,8 +51,8 @@ const getResults = async (req, res) => {
   let fileContents;
   // console.log("getResults HEADERS", req.headers);
   try {
-    fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/example-data-export.json"), 'utf8');
-    warn("getResults: Fetching the private results file ./dataPrivate/example-data-export.json. Ensure this is not committed.");
+    fileContents = fs.readFileSync(path.resolve(__dirname, "../dataPrivate/results.json"), 'utf8');
+    warn("getResults: Fetching the private results file ./dataPrivate/results.json. Ensure this is not committed.");
   } catch (err) {
     fileContents = fs.readFileSync(path.resolve(__dirname, "../data/results.json"), 'utf8');
     log("getResults: Fetching ./data/results.json");

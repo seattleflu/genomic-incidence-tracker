@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import * as types from "../actions/types";
 import { selectDemes, selectGeoLinks} from "./geoData";
-import { selectGeoResolution } from "./settings";
+import { selectGeoResolution, selectPathogen } from "./settings";
 
 /**
  * The name of this reducer may change as we better understand what data
@@ -25,7 +25,8 @@ const resultsReducer = (state = null, action) => {
  *
  * If the variable is continous then return the appropriate bin (aka category label)
  * @param {object} data an element of the results array
- * @param {object} variable a chosen variable (primary or group-by)
+ * @param {object} variable a chosen variable (primary or group-by).
+ *  Obligatory keys: `value`, `label`, `type`. Optional keys: `bins`
  */
 const _variableToCategory = (data, variable) => {
   let category;
@@ -49,37 +50,47 @@ const _variableToCategory = (data, variable) => {
 };
 
 /**
- * Mostly copied from https://observablehq.com/@jotasolano/flu-incidence/2.
- * The format of data returned ("flatData") is the same as the observable prototype
- * however this needs to be revisited.
+ * @param {Object} pathogen keys: `label`, `value`, ...
+ * @results {string|false} pathogen value or false if no filter needed (i.e. "ILI" selected)
  */
-const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolution, variable, filterVariable, filterCategoryToMatch) => {
-  /* must guard against non-available data */
-  if (!results || !variable) {
+const _createPathogenFilter = (pathogen) => {
+  if (pathogen.value === "all") {
     return false;
   }
-  /* create an array of processed data -- each entry is {value: A, deme: B}
-  * (the list of all unique values is "categories")
-  * and each deme B is in demes
-  * this calculation could be performed once before the data
-  * reaches the reducer. It's here for simplicity, but may well
-  * be expensive!
-  */
+  return pathogen.value;
+};
+
+/**
+ * Filter the "raw" results and return an array of data points with the relevent info
+ * for vizualisation.
+ *
+ * TO DO - the filters shouldn't have different shapes!
+ *
+ * @param {Object|false} groupByFilter keys: `variable` {Object} the groupByChoice, `categoryToMatch` {string}
+ * @param {string|false} pathogenFilter value or false
+ * @returns {Array} List of data points, each with 2 keys: `deme` and `value`
+ */
+const _createFilteredResults = (results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable) => {
   const dataPoints = [];
-  let missingDataCount = 0;
+  let missingDataCount = 0; // eslint-disable-line
   results.forEach((d) => {
     try {
-      /* if filterVariable is set (the "groupByVariable") then we only want
-      to consider points which match this */
-      if (filterVariable) {
-        if (_variableToCategory(d, filterVariable) !== filterCategoryToMatch) {
+      /* only consider points matching the groupBy variable (if needed) */
+      if (groupByFilter) {
+        if (_variableToCategory(d, groupByFilter.variable) !== groupByFilter.valueToMatch) {
+          throw Error(`filtered out`);
+        }
+      }
+      /* only consider points matching the groupBy variable (if needed) */
+      if (pathogenFilter) {
+        if (d.pathogen !== pathogenFilter) {
           throw Error(`filtered out`);
         }
       }
 
       const point = {};
       point.deme = geoLinks[d.residence_census_tract][geoResolution.value];
-      point.value = _variableToCategory(d, variable);
+      point.value = _variableToCategory(d, primaryVariable);
 
       if (!point.value || !point.deme) {
         throw Error("invalid value / deme");
@@ -90,11 +101,17 @@ const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolutio
     }
   });
 
-  const filterMsg = filterVariable ? ` with ${filterVariable.value} filtered to ${filterCategoryToMatch}` : "";
-  console.log(`Data transform for ${variable.value}${filterMsg}: ${dataPoints.length} points OK, ${missingDataCount} excluded`);
+  // const filterMsg = groupByFilter.variable ? ` with ${groupByFilter.variable.value} filtered to ${groupByFilter.valueToMatch}` : "";
+  // console.log(`Data transform for ${primaryVariable.value}${filterMsg}: ${dataPoints.length} points OK, ${missingDataCount} excluded`);
+  return dataPoints;
+};
 
+/**
+ * Mostly copied from https://observablehq.com/@jotasolano/flu-incidence/2.
+ */
+const _flattenData = (dataPoints, categories, demes) => {
   let maxValue = 0; /* maximum count of data points in any deme */
-  const flatData = demes.map((deme) => {
+  const counts = demes.map((deme) => {
     const point = {key: deme};
     categories.forEach((category) => {point[category] = 0;});
     let tmp = 0;
@@ -109,23 +126,22 @@ const _convertToFlatFormat = (results, demes, categories, geoLinks, geoResolutio
     }
     return point;
   });
-
-  return [
-    flatData,
-    maxValue
-  ];
+  return [counts, maxValue];
 };
 
-const _calcPercentages = (categories, flatData) => {
-  return flatData.map((d) => {
+/**
+ * Convert data expressed as counts to percentages
+ */
+const _calcPercentages = (categories, counts) => {
+  return counts.map((d) => {
     const total = categories.map((c) => d[c]).reduce((acc, cv) => acc+cv, 0);
     const percs = {key: d.key};
     categories.forEach((c) => {
-      percs[c] = parseInt(d[c] / total * 100, 10);
+      percs[c] = (d[c] / total * 100).toFixed(1);
     });
     return percs;
   });
-}
+};
 
 /**
  * What categories are present for a given variable in the dataset?
@@ -200,20 +216,25 @@ export const makeSelectDataForChart = () => {
       selectDemes,
       selectGeoLinks,
       selectGeoResolution,
+      selectPathogen,
       (state) => state.settings.primaryVariable.selected,
       (state) => state.settings.groupByVariable.selected,
       (state, props) => props.groupByValue
     ],
-    (results, categories, demes, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue) => {
-      if (!categories.length || !demes || !results) {
+    (results, categories, demes, geoLinks, geoResolution, pathogen, primaryVariable, groupByVariable, groupByValue) => {
+      if (!categories.length || !demes || !results || !primaryVariable) {
         return false;
       }
-      // console.log("SELECTOR (data for chart)", primaryVariable.value, groupByValue);
-      const [flatData, maxValue] = _convertToFlatFormat(results, demes, categories, geoLinks, geoResolution, primaryVariable, groupByVariable, groupByValue);
+      const groupByFilter = groupByVariable ? {variable: groupByVariable, valueToMatch: groupByValue} : false;
+      const pathogenFilter = _createPathogenFilter(pathogen);
+      const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
+      const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
+      const percentages = _calcPercentages(categories, counts);
       return {
+        pathogen,
         demes,
-        flatData,
-        flatPercs: _calcPercentages(categories, flatData),
+        counts,
+        percentages,
         categories,
         maxValue,
         primaryVariable,
