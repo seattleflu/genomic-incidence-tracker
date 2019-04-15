@@ -90,7 +90,9 @@ const renderLegend = (svg, dims, legend) => {
     .call(legend);
 };
 
-const getLegend = (categories, colorScale) => (svg) => {
+/* TO DO - generalise functions such as these which can be called
+from multiple charts */
+export const getLegend = (categories, colorScale) => (svg) => {
   const g = svg
     .attr("font-family", "sans-serif")
     .attr("font-size", 10)
@@ -148,13 +150,17 @@ const getDims = (width, height) => {
   return dims;
 };
 
+export const getColorScale = (categories) => {
+  return scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
+    .domain([0, categories.length-1].reverse())
+    .unknown("#ccc");
+};
+
 const initialRender = (domRef, ref, width, height, dims, categories, demes, data, domainEndValue, titleText) => {
   const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
-  const colorScale = scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
-    .domain([0, categories.length-1].reverse())
-    .unknown("#ccc");
+  const colorScale = getColorScale(categories);
   const legend = getLegend(categories, colorScale);
 
   /*            R E N D E R           */

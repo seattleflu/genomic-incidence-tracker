@@ -36,9 +36,9 @@
   "primaryVariable": {
     "sidebarLabel": "Primary Variable",
     "choices": [
+      {"value": "pathogen", "label": "Pathogen", "type": "categorical"},
       {"value": "flu_shot", "label": "Vaccination Status", "type": "boolean"},
       {"value": "sex", "label": "Sex", "type": "categorical"},
-      {"value": "pathogen", "label": "Pathogen", "type": "categorical"},
       {
         "value": "age",
         "label": "Age Groups",
