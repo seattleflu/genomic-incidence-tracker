@@ -29,10 +29,11 @@ const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData})
   const [hoverState, handleHoverOver, handleHoverOut] = useHover();
 
   useEffect(
+    /* when deps change we want to rerender the map (it handles "how" it re-renders)
+    without the deps array we rerender every time handleHoverOver is called (which changes hoverState)
+    which is not desired. */
     () => renderMap({ref: refElement.current, width: width-2*margin, height: height-2*margin, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}),
-    // We purposfully ignore the hoverHandlers so that the effect will not get into a loop of recreating the viz, firing the hover, ...
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [width, height, resultsData, geoJsonData, geoResolution, geoLinks]
+    [width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut]
   );
 
   return (

@@ -20,7 +20,6 @@ const unknownFill = "rgb(150, 150, 150)";
  */
 export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
-
   const {primaryVariable, percentages, categories, groupByVariable, groupByValue} = resultsData;
 
   let mainTitle = primaryVariable.label;

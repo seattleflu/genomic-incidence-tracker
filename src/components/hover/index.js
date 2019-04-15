@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -15,6 +15,10 @@ const Container = styled.div`
 /**
  * A custom React Hook to store information for a hover info box
  * This allows simple communication between D3 & a React-rendered info box.
+ *
+ * The handlers are wrapped in `useCallback` to prevent them updating unneccessarily
+ * (`setHoverState` doesn't need to be a dep as React guarantees it doesn't change)
+ *
  * hoverState -> state value to be passed to HoverInfoBox
  * handleHoverOver -> mouseover / mousenter handler
  * handleHoverOut -> mouseleave / mouseout handler
@@ -22,12 +26,12 @@ const Container = styled.div`
 export const useHover = () => {
   const [hoverState, setHoverState] = useState(false);
 
-  const handleHoverOver = (msg, x, y) => {
+  const handleHoverOver = useCallback((msg, x, y) => {
     setHoverState({mouseX: x, mouseY: y, msg});
-  };
-  const handleHoverOut = () => {
+  }, []);
+  const handleHoverOut = useCallback(() => {
     setHoverState(false);
-  };
+  }, []);
 
   return [hoverState, handleHoverOver, handleHoverOut];
 
