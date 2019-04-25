@@ -33,7 +33,7 @@ const getTablesToRender = (groupByCategories) => {
     <Table
       key={"mainTable"}
       width={tableDimensions.minWidth}
-      height={tableDimensions.minHeight}
+      // height={tableDimensions.maxHeight}
     />
   ]);
 };

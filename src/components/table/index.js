@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import { makeSelectDataForChart } from "../../reducers/results";
 import { renderD3Table } from "./render";
 
+
 export const tableDimensions = {
   minWidth: 570,
   maxWidth: 1000,
-  minHeight: 450,
+  minHeight: 550,
   maxHeight: 1000
 };
 const margin = 10;
@@ -26,28 +27,43 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
   cursor: pointer;
 `;
 
+const TableContainer = styled.div`
+  overflow: auto;
+  height: ${tableDimensions.minHeight}px;
+  border: 1px solid black;
+`;
+
 const Table = (props) => {
   const refElement = useRef(null);
   const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("count");
+
+  console.log('data', props.data.demes.length*28);
 
   useEffect(() =>
     renderD3Table({
       domRef: refElement.current,
       ref: ref.current,
       width: props.width-2*margin,
-      height: props.height-2*margin,
+      height: props.data.demes.length * 28,
+      // height: props.height-2*margin,
       data: props.data,
       showAsPerc: percCountToggle==="perc"
     })
   );
 
+  const styles1 = {
+    overflow: 'auto',
+    height: tableDimensions.minHeight
+  };
+
   return (
-    <Container width={props.width} height={props.height}>
+    <Container width={props.width} height={tableDimensions.minHeight} className={`testing`}>
       <Toggle onClick={() => changePercCountToggle(percCountToggle === "count" ? "perc" : "count")}>
         {`display ${percCountToggle === "count" ? "perc" : "count"}`}
       </Toggle>
-      <div ref={refElement}/>
+      <TableContainer ref={refElement}/>
+      {/* <div style={styles1} ref={refElement}/> */}
     </Container>
   );
 };

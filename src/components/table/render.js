@@ -128,11 +128,17 @@ const getYScaleAndAxis = (dims, demes) => {
   const yScale = scaleBand()
     .domain(demes)
     .range([dims.y1, dims.y2]);
-  const yAxis = axisLeft(yScale)
-    .tickSizeOuter(0);
-  return [yScale, yAxis];
-};
 
+  const y = scaleBand()
+    .domain(demes)
+    .range([dims.y1, (demes.length * 28) - 20])
+    .padding(0.5)
+    .align(0)
+    .round(true);
+  const yAxis = axisLeft(y)
+    .tickSizeOuter(0);
+  return [y, yAxis];
+};
 
 const getDims = (width, height) => {
   const dims = {
@@ -151,6 +157,7 @@ const getDims = (width, height) => {
 const initialRender = (domRef, ref, width, height, dims, categories, demes, data, domainEndValue, titleText) => {
   const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
+  // console.log('demes', demes.length*28);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
   const colorScale = scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
     .domain([0, categories.length-1].reverse())
