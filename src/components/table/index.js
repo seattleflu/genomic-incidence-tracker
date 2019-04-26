@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { makeSelectDataForChart } from "../../reducers/results";
 import { renderD3Table } from "./render";
 
-
 export const tableDimensions = {
   minWidth: 570,
   maxWidth: 1000,
@@ -30,7 +29,8 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
 const TableContainer = styled.div`
   overflow: auto;
   height: ${tableDimensions.minHeight}px;
-  border: 1px solid black;
+  border-radius: 6px;
+  // box-shadow: 0px 1px 5px 1px rgba(179,179,179,1);
 `;
 
 const Table = (props) => {
@@ -52,10 +52,6 @@ const Table = (props) => {
     })
   );
 
-  const styles1 = {
-    overflow: 'auto',
-    height: tableDimensions.minHeight
-  };
 
   return (
     <Container width={props.width} height={tableDimensions.minHeight} className={`testing`}>
@@ -63,7 +59,6 @@ const Table = (props) => {
         {`display ${percCountToggle === "count" ? "perc" : "count"}`}
       </Toggle>
       <TableContainer ref={refElement}/>
-      {/* <div style={styles1} ref={refElement}/> */}
     </Container>
   );
 };

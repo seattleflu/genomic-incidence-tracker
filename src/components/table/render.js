@@ -80,6 +80,7 @@ const renderTitle = (svg, dims, text) => {
     .attr("class", "title")
     .attr("transform", `translate(${dims.x1},${dims.yTitle})`)
     .append("text")
+    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
     .text(text);
 };
 
@@ -92,7 +93,7 @@ const renderLegend = (svg, dims, legend) => {
 
 const getLegend = (categories, colorScale) => (svg) => {
   const g = svg
-    .attr("font-family", "sans-serif")
+    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
     .attr("font-size", 10)
     .attr("text-anchor", "end")
     .attr("id", "legend")
@@ -142,7 +143,7 @@ const getYScaleAndAxis = (dims, demes) => {
 
 const getDims = (width, height) => {
   const dims = {
-    x1: 120, /* left margin, measured L-R */
+    x1: 130, /* left margin, measured L-R */
     x2: width - 140, /* right margin, measured L-R */
     y1: 45, /* top margin, measured T-B */
     y2: height - 20, /* bottom margin, measured T-B */
