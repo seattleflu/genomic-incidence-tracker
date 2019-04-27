@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { getAvailableVariables, getGeoJsons, getResults } from "../../actions/fetchData";
+import getGeoJsons from "../../actions/getGeoJsons";
+import getResults from "../../actions/getResults";
+import getAvailableVariables from "../../actions/getAvailableVariables";
 
 const DataFetch = (fetchFunctions) => {
   useEffect(() => {
