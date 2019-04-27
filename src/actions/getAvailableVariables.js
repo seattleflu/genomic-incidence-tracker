@@ -80,6 +80,7 @@ const parseData = (jsonData) => {
   settingsState.time = getTopLevelData(jsonData, "time");
   settingsState.primaryVariable = getTopLevelData(jsonData, "primaryVariable", {typeNeeded: true});
   settingsState.groupByVariable = getTopLevelData(jsonData, "groupByVariable");
+  settingsState.modellingDisplayVariable = getTopLevelData(jsonData, "modellingDisplayVariable");
   settingsState.loaded = true;
   applyUrlQueries(settingsState);
   return settingsState;

@@ -50,6 +50,8 @@ const renderBars = (svg, categories, data, colorScale, xScale, yScale) => {
       .data(data[categoryIdx], (d) => makeUpdateKey(d, categoryValue))
       .enter().append("rect")
       .attr("fill", () => colorScale(categoryIdx))
+      .attr("stroke", "white")
+      .attr("stroke-width", "0.5px")
       .attr("class", className)
       .attr("x", (d) => xScale(d[0]))
       .attr("y", (d) => yScale(d.data.key))
@@ -163,7 +165,9 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
   renderTitle(ref.svg, dims, titleText);
-  renderLegend(ref.svg, dims, legend);
+  if (categories.length > 1) {
+    renderLegend(ref.svg, dims, legend);
+  }
 };
 
 const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
@@ -192,19 +196,18 @@ const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
  * https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
  *
  */
-export const renderD3Table = ({domRef, ref, width, height, data, showAsPerc}) => {
+export const renderD3Table = ({domRef, ref, width, height, data, showAsPerc, titleText}) => {
   if (!data || !domRef) {
     return undefined;
   }
-  const {pathogen, categories, demes, counts, percentages, maxValue, primaryVariable, groupByVariable, groupByValue} = data;
-  const titleText = `${primaryVariable.label}${groupByVariable ? ` with ${groupByVariable.label} restricted to ${groupByValue}` : ""}`;
+  const {pathogen, categories, demes, counts, percentages, maxValue, primaryVariable} = data;
   const dataForVisualising = (stack().keys(categories))(showAsPerc ? percentages : counts);
   const domainEndValue = showAsPerc ? 100 : maxValue;
   const dims = getDims(width, height);
 
   if (!ref.svg) { /* initial rendering of the chart */
     initialRender(domRef, ref, width, height, dims, categories, demes, dataForVisualising, domainEndValue, titleText);
-  } else if (ref.primaryVariable !== primaryVariable || ref.demes !== demes) {
+  } else if ((primaryVariable && ref.primaryVariable !== primaryVariable) || ref.demes !== demes) {
     /* we could transition here if we wanted to... for primary variable this isn't too hard and would look nice,
     for deme changes you'd need to keep track of demes "in common" -- even though there really aren't any! */
     select(domRef).selectAll("*").remove();

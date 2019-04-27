@@ -5,3 +5,6 @@ export const CHANGE_SCREEN = "CHANGE_SCREEN";
 export const SET_RESULTS = "SET_RESULTS";
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_FAILED = "AUTH_FAILED";
+export const CLEAR_MODEL_DATA = "CLEAR_MODEL_DATA";
+export const SET_MODEL_DATA = "SET_MODEL_DATA";
+export const ERROR_MODEL_DATA = "ERROR_MODEL_DATA";

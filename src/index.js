@@ -7,11 +7,13 @@ import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import rootReducer from "./reducers";
 import changeURLMiddleware from "./middleware/changeURL";
+import getModellingDataMiddleware from "./middleware/getModellingData";
 
 const reduxStore = ((initialState) => {
   const middleware = [
     thunk,
-    changeURLMiddleware
+    changeURLMiddleware,
+    getModellingDataMiddleware
   ];
   const composedEnhancers = compose(
     applyMiddleware(...middleware),

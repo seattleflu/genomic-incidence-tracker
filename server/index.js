@@ -8,6 +8,7 @@ const webpack = require("webpack");
 const generateWebpackConfig = require("../webpack.config.js").default;
 const utils = require("./utils");
 const addHandlers = require("./api").addHandlers;
+const modelingResults = require("./modelingResults");
 const compression = require('compression');
 const nakedRedirect = require('express-naked-redirect');
 const expressStaticGzip = require("express-static-gzip");
@@ -118,6 +119,9 @@ if (args.subcommand === "build") {
 
   /* add API handlers -- see "./api.js" for more details */
   addHandlers({app, jwtMiddleware: auth.jwtMiddleware});
+
+  /* add model API handlers -- this handler mimics the real model server during development */
+  modelingResults.addHandlers({app, jwtMiddleware: auth.jwtMiddleware});
 
   /* serve index.html (which has the client JS bundle) for any unhandled requests */
   /* this must be the last "get" handler, else the "*" swallows all other requests */

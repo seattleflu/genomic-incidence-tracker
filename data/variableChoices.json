@@ -22,16 +22,44 @@
     ]
   },
   "dataSource": {
-    "sidebarLabel": "Data Source (to do)",
+    "sidebarLabel": "Data Source",
     "choices": [
       {"value": "raw", "label": "Raw Data"},
       {"value": "model", "label": "Modelling Results"}
     ]
   },
   "time": {
-    "sidebarLabel": "Time Frame (to do)",
+    "sidebarLabel": "Time Frame (modeling only)",
     "choices": [
-      {"value": "fixed", "label": "week x"}
+      {"value": "2019_W02", "label": "2019 Week 2"},
+      {"value": "2019_W03", "label": "2019 Week 3"},
+      {"value": "2019_W04", "label": "2019 Week 4"},
+      {"value": "2019_W05", "label": "2019 Week 5"},
+      {"value": "2019_W06", "label": "2019 Week 6"},
+      {"value": "2019_W07", "label": "2019 Week 7"},
+      {"value": "2019_W08", "label": "2019 Week 8"},
+      {"value": "2019_W09", "label": "2019 Week 9"},
+      {"value": "2019_W10", "label": "2019 Week 10"},
+      {"value": "2019_W11", "label": "2019 Week 11"},
+      {"value": "2019_W12", "label": "2019 Week 12"},
+      {"value": "2019_W13", "label": "2019 Week 13"},
+      {"value": "2019_W14", "label": "2019 Week 14"},
+      {"value": "2019_W15", "label": "2019 Week 15"},
+      {"value": "2019_W16", "label": "2019 Week 16"},
+      {"value": "2019_W17", "label": "2019 Week 17"},
+      {"value": "2019_W18", "label": "2019 Week 18"},
+      {"value": "2019_W19", "label": "2019 Week 19"},
+      {"value": "2019_W20", "label": "2019 Week 20"},
+      {"value": "2019_W21", "label": "2019 Week 21"},
+      {"value": "2019_W22", "label": "2019 Week 22"},
+      {"value": "2019_W23", "label": "2019 Week 23"},
+      {"value": "2019_W24", "label": "2019 Week 24"},
+      {"value": "2019_W25", "label": "2019 Week 25"},
+      {"value": "2019_W26", "label": "2019 Week 26"},
+      {"value": "2019_W27", "label": "2019 Week 27"},
+      {"value": "2019_W28", "label": "2019 Week 28"},
+      {"value": "2019_W29", "label": "2019 Week 29"},
+      {"value": "2019_W30", "label": "2019 Week 30"}
     ]
   },
   "primaryVariable": {
@@ -52,5 +80,13 @@
     "sidebarLabel": "Group By",
     "useChoicesOf": "primaryVariable",
     "unset": true
+  },
+  "modellingDisplayVariable": {
+    "sidebarLabel": "Modelling value",
+    "choices": [
+      {"value": "mean", "label": "mean"},
+      {"value": "mode", "label": "mode"},
+      {"value": "quintile", "label": "quintile"}
+    ]
   }
 }

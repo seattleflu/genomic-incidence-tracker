@@ -46,4 +46,31 @@ export const selectPathogen = (state) => {
   return false;
 };
 
+export const isModelViewSelected = (state) => {
+  if (state.settings.loaded) {
+    return state.settings.dataSource.selected.value === "model";
+  }
+  return false;
+};
+
+export const selectTimeValue = (state) => state.settings.time.selected;
+
+export const selectModellingDisplayVariable = (state) => state.settings.modellingDisplayVariable.selected;
+
+export const selectSettingsForModelRequest = (state) => {
+  const body = {
+    geoResolution: state.settings.geoResolution.selected.value,
+    pathogen: state.settings.pathogen.selected.value,
+    outcome: "relative_incidence",
+    model_type: "latent_field",
+    model_version: "latest",
+    epi_week: state.settings.time.selected.value
+  };
+  if (state.settings.groupByVariable.selected) {
+    body.groupBy = state.settings.groupByVariable.selected.value;
+  }
+  return body;
+};
+
+
 export default settings;

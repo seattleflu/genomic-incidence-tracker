@@ -3,14 +3,17 @@ import React from 'react';
 import { connect } from "react-redux";
 import Select from "./select";
 import * as types from "../../actions/types";
+import { isModelViewSelected } from "../../reducers/settings";
 
 
 /* TO DO: let data choose layout */
 
 const Options = ({settings, dispatch}) => {
 
-  const settingsToRender = ["pathogen", "geoResolution", "dataSource", "time", "primaryVariable", "groupByVariable"]
-    .filter((key) => key in settings);
+  const settingsToRender = isModelViewSelected({settings}) ?
+    ["pathogen", "geoResolution", "dataSource", "time", "modellingDisplayVariable"] :
+    ["pathogen", "geoResolution", "dataSource", "primaryVariable", "groupByVariable"];
+
 
   return settingsToRender.map((key) => (
     <Select

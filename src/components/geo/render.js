@@ -18,11 +18,11 @@ const unknownFill = "rgb(150, 150, 150)";
  *
  * P.S. see the note on the JSDoc for renderD3Table
  */
-export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
+export const renderMap = ({ref, width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
-  const {primaryVariable, percentages, categories, groupByVariable, groupByValue} = resultsData;
-
-  let mainTitle = primaryVariable.label;
+  const {primaryVariable, categories, groupByVariable, groupByValue} = resultsData;
+  let mainTitle = modelViewSelected ?
+    `Modeling ${selectedModellingDisplayVariable.label} incidence` : primaryVariable.label;
   const secondaryTitle = groupByVariable ? `${groupByVariable.label} restricted to ${groupByValue}` : "";
 
   const dims = {
@@ -55,7 +55,7 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
   let fill; // will be passed to d3, so can be a string or a function receiving a data point
   let legend;
   let makeInfo;
-  if (categories.length !== 2) {
+  if (categories.length > 2) {
     console.warn(`Cannot display simple chloropleth for this ${primaryVariable.label} with ${categories.length} categories`);
     fill = unknownFill;
     mainTitle += " (viz not implemented)";
@@ -64,19 +64,28 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
     /* what category do we want to visualise? (e.g. % Male or % Female ?!?) */
     const vizCategory = categories[0];
     /* what are the values for this category for each deme? */
-    const demePercs = {};
-    percentages.forEach((d) => {demePercs[d.key] = d[vizCategory];});
+    const demeValues = {};
+    let domainMax;
+    if (modelViewSelected) {
+      resultsData.counts.forEach((d) => {demeValues[d.key] = d[vizCategory];});
+      domainMax = resultsData.maxValue;
+    } else {
+      resultsData.percentages.forEach((d) => {demeValues[d.key] = d[vizCategory];});
+      domainMax = 100;
+    }
 
-    mainTitle += `. Showing % ${vizCategory}`;
+    if (!modelViewSelected) {
+      mainTitle += `. Showing % ${vizCategory}`;
+    }
 
     /* A D3 colour scale -- currently we only work with simple chloropleths */
-    const colourScale = scaleSequential(interpolatePlasma).unknown("#ccc").domain([0, 100]);
+    const colourScale = scaleSequential(interpolatePlasma).unknown("#ccc").domain([0, domainMax]);
 
     /* What should the hover info box display? */
     makeInfo = (d) => {
       const deme = getDemeName(d);
-      const value = parseInt(demePercs[deme], 10);
-      if (value !== +value) {
+      const value = modelViewSelected ? Number(demeValues[deme]).toFixed(4) : parseInt(demeValues[deme], 10);
+      if (Number.isNaN(value)) {
         return `No data for ${deme}`;
       }
       return `${deme}: ${value}%`;
@@ -84,7 +93,7 @@ export const renderMap = ({ref, width, height, resultsData, geoJsonData, geoReso
 
     fill = (d) => {
       const deme = getDemeName(d);
-      return colourScale(demePercs[deme]);
+      return colourScale(demeValues[deme]);
     };
 
     legend = {};

@@ -7,6 +7,9 @@ import Sidebar from "../sidebar";
 import ChartLayout from "./chartLayout";
 import {headerHeight} from "../header";
 import Options from "../sidebar/mainOptions";
+import ShowError from "../misc/showError";
+import { areModelResultsReady, selectModelErrorMessage } from "../../reducers/modelResults";
+import { isModelViewSelected } from "../../reducers/settings";
 
 /* MainContainer is all of the screen to the right of the sidebar */
 export const MainContainer = styled.div`
@@ -39,12 +42,13 @@ const getSidebarWidth = (windowWidth) =>
 const MainScreen = (props) => {
   if (!props.loaded) {
     return (
-      <h1>{"data not loaded..."}</h1>
+      <ShowError message={"Data not loaded..."}/>
     );
   }
 
   const sidebarWidth = getSidebarWidth();
   const mainWidth = props.windowWidth - sidebarWidth;
+
   return (
     <>
       <Sidebar width={sidebarWidth} height={props.windowHeight}>
@@ -52,7 +56,11 @@ const MainScreen = (props) => {
       </Sidebar>
       <MainContainer width={mainWidth} height={props.windowHeight}>
         <Padding>
-          <ChartLayout width={mainWidth}/>
+          {
+            (props.displayModelResults && !props.areModelResultsReady) ?
+              <ShowError message={props.modelErrorMessage}/> :
+              <ChartLayout width={mainWidth}/>
+          }
         </Padding>
       </MainContainer>
     </>
@@ -65,14 +73,12 @@ MainScreen.propTypes = {
   windowHeight: PropTypes.number.isRequired
 };
 
-// MainScreen.defaultProps = {
-//   name: 'Stranger'
-// };
-
-const mapStateToProps = (state) => {
-  /* use Memoized Selectors (library: reselect) for complex transforms */
-  return {loaded: state.settings.loaded};
-};
+const mapStateToProps = (state) => ({
+  loaded: state.settings.loaded, // TODO
+  displayModelResults: isModelViewSelected(state),
+  areModelResultsReady: areModelResultsReady(state),
+  modelErrorMessage: selectModelErrorMessage(state)
+});
 
 export default connect(mapStateToProps)(windowDimensionsHOC(MainScreen));
 

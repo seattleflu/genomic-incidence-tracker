@@ -1,13 +1,9 @@
 import { createSelector } from 'reselect';
 import * as types from "../actions/types";
-import { selectDemes, selectGeoLinks} from "./geoData";
-import { selectGeoResolution, selectPathogen } from "./settings";
 
 /**
  * The name of this reducer may change as we better understand what data
- * is available and in what formats. Currently there's no transforms
- * done, the JSON data is just dumped here, but that may also change
- * (this shouldn't be done until we have settled on an input data spec)
+ * is available and in what formats.
  */
 const resultsReducer = (state = null, action) => {
   switch (action.type) {
@@ -199,54 +195,27 @@ export const selectCategoriesForGroupByVariable = createSelector(
   getCategories
 );
 
-/**
- * A factory which returns a memoised selector.
- * The selector gets data in a format desired for vizualizing a chart
- * This is memoised as theres a data transform involved.
- *
- * This needs to be a factory as we (may) be using the selector in
- * multiple components and each one needs "their own" selector, otherwise
- * memoisation (with a cache size of 1) doesn't work.
- * Note that mapStateToProps also needs to be a factory.
- * see https://github.com/reduxjs/reselect
- */
-export const makeSelectDataForChart = () => {
-  return createSelector(
-    [
-      (state) => state.results,
-      selectCategoriesForPrimaryVariable,
-      selectDemes,
-      selectGeoLinks,
-      selectGeoResolution,
-      selectPathogen,
-      (state) => state.settings.primaryVariable.selected,
-      (state) => state.settings.groupByVariable.selected,
-      (state, props) => props.groupByValue
-    ],
-    (results, categories, demes, geoLinks, geoResolution, pathogenSelected, primaryVariable, groupByVariable, groupByValue) => {
-      if (!categories.length || !demes || !results || !primaryVariable) {
-        return false;
-      }
-      const groupByFilter = groupByVariable ? {variable: groupByVariable, valueToMatch: groupByValue} : false;
-      const pathogenFilter = _createPathogenFilter(pathogenSelected);
-      const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
-      const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
-      const percentages = _calcPercentages(categories, counts);
-      return {
-        pathogen: pathogenSelected,
-        demes,
-        counts,
-        percentages,
-        categories,
-        maxValue,
-        primaryVariable,
-        groupByVariable,
-        groupByValue
-      };
-    }
-  );
+export const selectRawDataResults = (results, categories, demes, geoLinks, geoResolution, pathogenSelected, primaryVariable, groupByVariable, groupByValue) => {
+  if (!categories.length || !demes || !results || !primaryVariable) {
+    return false;
+  }
+  const groupByFilter = groupByVariable ? {variable: groupByVariable, valueToMatch: groupByValue} : false;
+  const pathogenFilter = _createPathogenFilter(pathogenSelected);
+  const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
+  const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
+  const percentages = _calcPercentages(categories, counts);
+  return {
+    pathogen: pathogenSelected,
+    demes,
+    counts,
+    percentages,
+    categories,
+    maxValue,
+    primaryVariable,
+    groupByVariable,
+    groupByValue
+  };
 };
-
 
 export default resultsReducer;
 

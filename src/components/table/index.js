@@ -1,8 +1,9 @@
 import React, {useRef, useEffect, useState} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
-import { makeSelectDataForChart } from "../../reducers/results";
+import { makeSelectDataForChart } from "../../reducers/selectResults";
 import { renderD3Table } from "./render";
+import { selectTimeValue, selectModellingDisplayVariable, isModelViewSelected } from "../../reducers/settings";
 
 export const tableDimensions = {
   minWidth: 570,
@@ -31,6 +32,11 @@ const Table = (props) => {
   const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("count");
 
+  const titleText = !props.data ?
+    "" : props.isModelViewSelected ?
+      `Modelling ${props.selectedModellingDisplayVariable.label} incidence for ${props.selectedTime.label}` :
+      `${props.data.primaryVariable.label}${props.data.groupByVariable ? ` with ${props.data.groupByVariable.label} restricted to ${props.data.groupByValue}` : ""}`;
+
   useEffect(() =>
     renderD3Table({
       domRef: refElement.current,
@@ -38,15 +44,25 @@ const Table = (props) => {
       width: props.width-2*margin,
       height: props.height-2*margin,
       data: props.data,
-      showAsPerc: percCountToggle==="perc"
+      titleText,
+      showAsPerc: percCountToggle==="perc",
+      selectedTime: props.selectedTime,
+      selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
     })
   );
 
-  return (
-    <Container width={props.width} height={props.height}>
+  const renderPercentageCountsToggle = () => {
+    if (!props.data.percentages) return null;
+    return (
       <Toggle onClick={() => changePercCountToggle(percCountToggle === "count" ? "perc" : "count")}>
         {`display ${percCountToggle === "count" ? "perc" : "count"}`}
       </Toggle>
+    );
+  };
+
+  return (
+    <Container width={props.width} height={props.height}>
+      {renderPercentageCountsToggle()}
       <div ref={refElement}/>
     </Container>
   );
@@ -62,7 +78,10 @@ const makeMapStateToProps = () => {
   const selectDataForChart = makeSelectDataForChart();
   const mapStateToProps = (state, props) => {
     return {
-      data: selectDataForChart(state, props)
+      data: selectDataForChart(state, props),
+      isModelViewSelected: isModelViewSelected(state),
+      selectedTime: selectTimeValue(state),
+      selectedModellingDisplayVariable: selectModellingDisplayVariable(state)
     };
   };
   return mapStateToProps;

@@ -1,8 +1,8 @@
 import React, {useRef, useEffect} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
-import { makeSelectDataForChart } from "../../reducers/results";
-import { selectGeoResolution } from "../../reducers/settings";
+import { makeSelectDataForChart } from "../../reducers/selectResults";
+import { selectGeoResolution, isModelViewSelected, selectModellingDisplayVariable} from "../../reducers/settings";
 import { selectGeoJsonData, selectGeoLinks } from "../../reducers/geoData";
 import { renderMap } from "./render";
 import HoverInfoBox, { useHover } from "../hover";
@@ -24,7 +24,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData}) => {
+const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData, modelViewSelected, selectedModellingDisplayVariable}) => {
   const refElement = useRef(null);
   const [hoverState, handleHoverOver, handleHoverOut] = useHover();
 
@@ -32,8 +32,20 @@ const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData})
     /* when deps change we want to rerender the map (it handles "how" it re-renders)
     without the deps array we rerender every time handleHoverOver is called (which changes hoverState)
     which is not desired. */
-    () => renderMap({ref: refElement.current, width: width-2*margin, height: height-2*margin, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}),
-    [width, height, resultsData, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut]
+    () => renderMap({
+      ref: refElement.current,
+      width: width-2*margin,
+      height: height-2*margin,
+      resultsData,
+      modelViewSelected,
+      selectedModellingDisplayVariable,
+      geoJsonData,
+      geoResolution,
+      geoLinks,
+      handleHoverOver,
+      handleHoverOut
+    }),
+    [width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut]
   );
 
   return (
@@ -53,7 +65,9 @@ const makeMapStateToProps = () => {
       geoResolution: selectGeoResolution(state),
       geoJsonData: selectGeoJsonData(state),
       geoLinks: selectGeoLinks(state),
-      resultsData: selectDataForChart(state, props)
+      resultsData: selectDataForChart(state, props),
+      modelViewSelected: isModelViewSelected(state),
+      selectedModellingDisplayVariable: selectModellingDisplayVariable(state)
     };
   };
   return mapStateToProps;
