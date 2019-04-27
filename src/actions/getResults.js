@@ -26,7 +26,10 @@ const checkDataForErrors = (jsonData) => {
     throw new Error("results data is not an array");
   }
   for (const entry of jsonData) {
-    checkObjectHas(entry, ["sex", "residence_census_tract", "age", "flu_shot", "pathogen"]);
+    checkObjectHas(entry, ["sex", "residence_census_tract", "age", "flu_shot"]);
+    if (!entry.pathogen || entry.pathogen === "?") {
+      entry.pathogen = undefined;
+    }
   }
   return jsonData;
 };

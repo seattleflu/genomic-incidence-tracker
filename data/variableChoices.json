@@ -2,7 +2,8 @@
   "pathogen": {
     "sidebarLabel": "Pathogen",
     "choices": [
-      {"value": "all", "label": "Influenza Like Illness"},
+      {"value": "all", "label": "All samples"},
+      {"value": "allPositive", "label": "Any confirmed pathogen"},
       {"value": "h1n1pdm", "label": "influenza (A/H1N1)"},
       {"value": "h3n2", "label": "influenza (A/H3N2)"},
       {"value": "otherili", "label": "other"},

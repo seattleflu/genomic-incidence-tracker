@@ -62,10 +62,10 @@ Here is an example of a data point (data not real):
     "age": 39,
     "flu_shot": false,
     "pathogen": "h1n1pdm"
-  },
-  ...
+  }
 ]
 ```
+Note that the `pathogen` key should be left out if the diagnosis is unknown.
 
 
 #### `data/variableChoices.json`

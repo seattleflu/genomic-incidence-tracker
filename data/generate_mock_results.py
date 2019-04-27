@@ -16,8 +16,8 @@ for n in range(0, 1200):
   result["residence_census_tract"] = census_ids[math.floor(random.betavariate(1, 2)*len(census_ids))]
   result["age"] = math.floor(random.triangular(1, 90, 20))
   result["flu_shot"] = random.betavariate(1, 2) > 0.5
-  result["pathogen"] = pathogens[math.floor(random.betavariate(0.5, 2)*len(pathogens))]
-
+  if random.betavariate(1, 2) > 0.2:
+    result["pathogen"] = pathogens[math.floor(random.betavariate(0.5, 2)*len(pathogens))]
   results.append(result)
 
 with open("./data/results.json", 'w') as fh:

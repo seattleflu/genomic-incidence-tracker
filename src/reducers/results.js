@@ -50,14 +50,18 @@ const _variableToCategory = (data, variable) => {
 };
 
 /**
+ * Returns a function that, when called with the data point's pathogen value,
+ * will return `true` if it should be part of the selection, `false` otherwise
  * @param {Object} pathogen keys: `label`, `value`, ...
- * @results {string|false} pathogen value or false if no filter needed (i.e. "ILI" selected)
+ * @results {function} returns true/false
  */
-const _createPathogenFilter = (pathogen) => {
-  if (pathogen.value === "all") {
-    return false;
+const _createPathogenFilter = (pathogenSelected) => {
+  if (pathogenSelected.value === "all") {
+    return () => true;
+  } else if (pathogenSelected.value === "allPositive") {
+    return (pathogen) => pathogen !== undefined;
   }
-  return pathogen.value;
+  return (pathogen) => pathogen === pathogenSelected.value;
 };
 
 /**
@@ -67,7 +71,7 @@ const _createPathogenFilter = (pathogen) => {
  * TO DO - the filters shouldn't have different shapes!
  *
  * @param {Object|false} groupByFilter keys: `variable` {Object} the groupByChoice, `categoryToMatch` {string}
- * @param {string|false} pathogenFilter value or false
+ * @param {function} pathogenFilter function used in a conditional (true: include)
  * @returns {Array} List of data points, each with 2 keys: `deme` and `value`
  */
 const _createFilteredResults = (results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable) => {
@@ -81,11 +85,9 @@ const _createFilteredResults = (results, groupByFilter, pathogenFilter, geoLinks
           throw Error(`filtered out`);
         }
       }
-      /* only consider points matching the groupBy variable (if needed) */
-      if (pathogenFilter) {
-        if (d.pathogen !== pathogenFilter) {
-          throw Error(`filtered out`);
-        }
+      /* only consider points matching the pathogen filter */
+      if (!pathogenFilter(d.pathogen)) {
+        throw Error(`filtered out`);
       }
 
       const point = {};
@@ -221,17 +223,17 @@ export const makeSelectDataForChart = () => {
       (state) => state.settings.groupByVariable.selected,
       (state, props) => props.groupByValue
     ],
-    (results, categories, demes, geoLinks, geoResolution, pathogen, primaryVariable, groupByVariable, groupByValue) => {
+    (results, categories, demes, geoLinks, geoResolution, pathogenSelected, primaryVariable, groupByVariable, groupByValue) => {
       if (!categories.length || !demes || !results || !primaryVariable) {
         return false;
       }
       const groupByFilter = groupByVariable ? {variable: groupByVariable, valueToMatch: groupByValue} : false;
-      const pathogenFilter = _createPathogenFilter(pathogen);
+      const pathogenFilter = _createPathogenFilter(pathogenSelected);
       const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
       const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
       const percentages = _calcPercentages(categories, counts);
       return {
-        pathogen,
+        pathogen: pathogenSelected,
         demes,
         counts,
         percentages,
