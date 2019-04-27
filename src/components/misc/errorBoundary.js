@@ -1,4 +1,5 @@
 import React from "react";
+import ShowError from "./showError";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class ErrorBoundary extends React.Component {
       if (this.props.showNothing) {
         return null;
       }
-      return (<h1>Something went wrong.</h1>);
+      return (<ShowError/>);
     }
 
     return this.props.children;
