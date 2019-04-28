@@ -121,9 +121,11 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
 
   /* render the (text) titles */
   svg.append("text")
+    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
     .attr("transform", `translate(${dims.legx1}, ${dims.tity1})`)
     .text(mainTitle);
   svg.append("text")
+    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
     .attr("transform", `translate(${dims.legx1}, ${dims.tity2})`)
     .text(secondaryTitle);
 

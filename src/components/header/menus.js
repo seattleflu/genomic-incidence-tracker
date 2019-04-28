@@ -9,7 +9,11 @@ const Container = styled.div`
 `;
 
 const Button = styled.button`
-
+  font-family ${(props) => props.theme.mainFont};
+  font-size ${(props) => props.theme.fontSmall};
+  text-transform: uppercase;
+  background-color: none;
+  border: none;
 `;
 
 const Menus = () => {

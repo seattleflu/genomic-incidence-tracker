@@ -6,9 +6,11 @@ import Menus from "./menus";
 
 /* This header is designed to always be present, even if one scrolls the "main section" */
 
-export const headerHeight = 40;
+export const headerHeight = 50;
 
 const OuterContainer = styled.div`
+  box-shadow: 0px 1px 5px 1px rgba(179,179,179,1);
+  z-index: 100;
   position: fixed;
   height: ${headerHeight}px;
   width: 100%;
@@ -16,15 +18,18 @@ const OuterContainer = styled.div`
   left: 0;
   overflow-y: hidden;
   overflow-x: hidden;
-  background-color: ${(props) => props.theme.sidebarBackground};
+  background-color: white;
+
 `;
 
 const InnerContainer = styled.div`
+  font-family ${(props) => props.theme.mainFont};
   display: flex;
   flex-direction: row;
   align-content: center;
   flex-wrap: nowrap;
   justify-content: space-between;
+  align-items: center;
   height: 100%;
   order: 0;
   padding: 3px 20px 3px 20px;
