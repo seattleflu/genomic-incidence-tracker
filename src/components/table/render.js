@@ -9,12 +9,39 @@ import { interpolateSpectral } from "d3-scale-chromatic";
 const makeClassName = (x) => x.replace(/[ /<>+]/g, '_');
 const transitionDuration = 1000;
 
+const renderContainer = (ref, width, height) => {
+  const div = select(ref)
+    .append('div')
+    .style('background-color', 'white')
+    .attr('width', width + "px")
+    .attr('height', height + "px");
+  return div.node();
+};
+
 const renderSVG = (ref, width, height) => {
   const svg = select(ref)
     .append('svg')
     .style('background-color', 'white')
     .attr('width', width)
     .attr('height', height);
+  return svg;
+};
+
+
+const renderAxis = (ref, dims, xAxis, width) => {
+  const svg = select(ref)
+    .attr('id', 'test')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', 30);
+
+  const g = svg.append('g')
+    .attr("class", "x axis");
+
+  // g.attr("transform", `translate(0,${dims.y2})`)
+    g.call(xAxis)
+    .selectAll(".tick line")
+    .attr("stroke", "#8A9BA8");
   return svg;
 };
 
@@ -160,9 +187,13 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
     .unknown("#ccc");
   const legend = getLegend(categories, colorScale);
 
+
+
   /*            R E N D E R           */
-  ref.svg = renderSVG(domRef, width, height);
-  ref.domXAxis = renderXAxis(ref.svg, dims, xAxis);
+  ref.div = renderContainer(domRef, width, height);
+  ref.svg = renderSVG(ref.div, width, height);
+  // ref.domXAxis = renderXAxis(ref.svg, dims, xAxis);
+  ref.svgX = renderAxis(ref.div, dims, xAxis, width);
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
   renderTitle(ref.svg, dims, titleText);

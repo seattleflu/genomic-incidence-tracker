@@ -63,7 +63,7 @@ const Table = (props) => {
   return (
     <Container width={props.width} height={props.height}>
       {renderPercentageCountsToggle()}
-      <div ref={refElement}/>
+      <div ref={refElement} id={`outer-div`}/>
     </Container>
   );
 };
