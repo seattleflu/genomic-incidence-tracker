@@ -1,19 +1,12 @@
 import styled from 'styled-components';
 import React from 'react';
 import LogOut from "./logOut";
+import Button from "../ui/button";
 
 const Container = styled.div`
   color: ${(props) => props.theme.neutral[200]};
   font-size: 20px;
   text-transform: "uppercase";
-`;
-
-const Button = styled.button`
-  font-family ${(props) => props.theme.mainFont};
-  font-size ${(props) => props.theme.fontSmall};
-  text-transform: uppercase;
-  background-color: none;
-  border: none;
 `;
 
 const Menus = () => {

@@ -7,6 +7,7 @@ import { axisBottom } from "d3-axis";
 
 const unknownFill = "rgb(150, 150, 150)";
 
+
 /**
  * a function to render a mapbox / D3 map, intended to be called from a useEffect hook
  *
@@ -18,7 +19,7 @@ const unknownFill = "rgb(150, 150, 150)";
  *
  * P.S. see the note on the JSDoc for renderD3Table
  */
-export const renderMap = ({ref, width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut}) => {
+export const renderMap = ({ref, width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut, theme}) => {
   if (!resultsData || !geoJsonData || !ref) return undefined;
   const {primaryVariable, categories, groupByVariable, groupByValue} = resultsData;
   let mainTitle = modelViewSelected ?
@@ -121,11 +122,11 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
 
   /* render the (text) titles */
   svg.append("text")
-    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
+    .attr("font-family", theme.mainFont)
     .attr("transform", `translate(${dims.legx1}, ${dims.tity1})`)
     .text(mainTitle);
   svg.append("text")
-    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
+    .attr("font-family", theme.mainFont)
     .attr("transform", `translate(${dims.legx1}, ${dims.tity2})`)
     .text(secondaryTitle);
 

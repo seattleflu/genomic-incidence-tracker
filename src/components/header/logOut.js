@@ -1,7 +1,7 @@
 import React from 'react';
-// import styled from 'styled-components';
 import { connect } from "react-redux";
 import * as types from "../../actions/types";
+import Button from "../ui/button";
 
 const LogOut = ({logOut}) => {
   const handleClick = (event) => {
@@ -9,9 +9,9 @@ const LogOut = ({logOut}) => {
     logOut();
   };
   return (
-    <button onClick={handleClick}>
+    <Button onClick={handleClick}>
       log out
-    </button>
+    </Button>
   );
 };
 

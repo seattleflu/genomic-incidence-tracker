@@ -10,6 +10,13 @@ const neutral = {
   800: "#2A2F30"
 };
 
+const colors = {
+  blue: '#137CBD',
+  green: '#0F9960',
+  red: '#DB3737',
+  orange: '#D9822B'
+};
+
 const fz = {
   large: '24px',
   medium: '20px',
@@ -24,23 +31,14 @@ export const mainTheme = {
   fontSmall: fz['small'],
   fontTiny: fz['tiny'],
   neutral,
+  colors,
   sidebarBackground: neutral[100],
+  sidebarBoxShadow: "rgba(0, 0, 0, 0.2) -3px 0px 3px -3px",
   mainBackground: "white",
+  selectedColor: "#5097BA",
+  unselectedColor: "#333",
+  unselectedBackground: "#888",
   colorSubheading: neutral[600]
 };
-
-/* I took this object from Auspice, not sure if we'll end up using it here
-
-const sidebarThemeDefaults = {
-  background: "#30353F",
-  color: "#D3D3D3",
-  // "font-family": "Lato, Helvetica Neue, Helvetica, sans-serif",
-  sidebarBoxShadow: "rgba(255, 255, 255, 1)",
-  selectedColor: "#5DA8A3",
-  unselectedColor: "#BBB",
-  unselectedBackground: "#888"
-};
-*/
-
 
 export default mainTheme;
