@@ -3,15 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import * as types from '../../actions/types';
+import Button from "../ui/button";
 
 const Container = styled.div`
   color: ${(props) => props.theme.neutral[200]};
   font-size: 20px;
   padding-right: 20px;
-`;
-
-const Button = styled.button`
-
 `;
 
 const Modes = ({changeScreen}) => {

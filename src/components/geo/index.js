@@ -1,6 +1,6 @@
 import React, {useRef, useEffect} from 'react';
 import { connect } from "react-redux";
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 import { makeSelectDataForChart } from "../../reducers/selectResults";
 import { selectGeoResolution, isModelViewSelected, selectModellingDisplayVariable} from "../../reducers/settings";
 import { selectGeoJsonData, selectGeoLinks } from "../../reducers/geoData";
@@ -24,7 +24,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData, modelViewSelected, selectedModellingDisplayVariable}) => {
+const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData, modelViewSelected, selectedModellingDisplayVariable, theme}) => {
   const refElement = useRef(null);
   const [hoverState, handleHoverOver, handleHoverOut] = useHover();
 
@@ -43,9 +43,10 @@ const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData, 
       geoResolution,
       geoLinks,
       handleHoverOver,
-      handleHoverOut
+      handleHoverOut,
+      theme: theme
     }),
-    [width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut]
+    [width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut, theme]
   );
 
   return (
@@ -68,9 +69,10 @@ const makeMapStateToProps = () => {
       resultsData: selectDataForChart(state, props),
       modelViewSelected: isModelViewSelected(state),
       selectedModellingDisplayVariable: selectModellingDisplayVariable(state)
+      // theme: props.theme
     };
   };
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps)(Geo);
+export default connect(makeMapStateToProps)(withTheme(Geo));

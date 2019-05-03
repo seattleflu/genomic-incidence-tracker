@@ -13,6 +13,7 @@ const SidebarOuterContainer = styled.div`
   height: ${(props) => (props.height-headerHeight)+"px"};
   width: ${(props) => props.width+"px"};
   max-width: ${(props) => props.width+"px"};
+  box-shadow: ${(props) => props.theme.sidebarBoxShadow};
   top: ${headerHeight}px;
   bottom: 0;
   left: 0;
