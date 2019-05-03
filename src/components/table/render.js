@@ -1,7 +1,7 @@
 import { select } from "d3-selection";
 import 'd3-transition';
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisTop, axisLeft } from "d3-axis";
 import { stack } from "d3-shape";
 import { interpolateSpectral } from "d3-scale-chromatic";
 
@@ -27,29 +27,21 @@ const renderSVG = (ref, width, height) => {
   return svg;
 };
 
-
-const renderAxis = (ref, dims, xAxis, width) => {
+const renderSVGHeader = (ref, width, height) => {
   const svg = select(ref)
-    .attr('id', 'test')
     .append('svg')
     .attr('width', width)
-    .attr('height', 30);
-
-  const g = svg.append('g')
-    .attr("class", "x axis");
-
-  // g.attr("transform", `translate(0,${dims.y2})`)
-    g.call(xAxis)
-    .selectAll(".tick line")
-    .attr("stroke", "#8A9BA8");
+    .attr('height', height);
   return svg;
 };
 
-const renderXAxis = (svg, dims, xAxis) => {
-  const g = svg.append("g")
-    .attr("class", "x axis");
-  g.attr("transform", `translate(0,${dims.y2})`)
-    .call(xAxis)
+
+const renderXAxis = (ref, dims, xAxis) => {
+  const g = ref.append('g')
+    .attr("class", "x axis")
+    .attr("transform", `translate(0,${dims.legendHeight - 2})`);
+
+  g.call(xAxis)
     .selectAll(".tick line")
     .attr("stroke", "#8A9BA8");
   return g;
@@ -107,7 +99,7 @@ const updateBars = (domBars, categories, data, xScale, yScale) => {
 const renderTitle = (svg, dims, text) => {
   svg.append("g")
     .attr("class", "title")
-    .attr("transform", `translate(${dims.x1},${dims.yTitle})`)
+    .attr("transform", `translate(${0},${dims.yTitle})`)
     .append("text")
       .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
       .text(text);
@@ -116,7 +108,7 @@ const renderTitle = (svg, dims, text) => {
 const renderLegend = (svg, dims, legend) => {
   svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${dims.x1},${dims.yLegend})`)
+    .attr("transform", `translate(${50},${dims.yLegend})`)
     .call(legend);
 };
 
@@ -129,7 +121,7 @@ const getLegend = (categories, colorScale) => (svg) => {
     .selectAll("g")
     .data(categories)
     .join("g")
-    .attr("transform", (d, i) => `translate(${i * 60 + 30},${0})`);
+    .attr("transform", (d, i) => `translate(${i * 60},${0})`);
 
   g.append("rect")
     .attr("x", -16)
@@ -149,7 +141,7 @@ const getXScaleAndAxis = (dims, domainEndValue) => {
   const xScale = scaleLinear()
     .domain([0, domainEndValue])
     .range([dims.x1, dims.x1 + dims.x2]);
-  const xAxis = axisBottom(xScale)
+  const xAxis = axisTop(xScale)
     .ticks(dims.width / 50, "s")
     .tickSizeInner(-1*dims.height);
   return [xScale, xAxis];
@@ -168,13 +160,14 @@ const getDims = (width, height) => {
   const dims = {
     x1: 130, /* left margin, measured L-R */
     x2: width - 140, /* right margin, measured L-R */
-    y1: 45, /* top margin, measured T-B */
+    y1: 0, /* top margin, measured T-B */
     y2: height - 20, /* bottom margin, measured T-B */
     yTitle: 15,
     yLegend: 38
   };
   dims.width = dims.x2 - dims.x1;
   dims.height = dims.y2 - dims.y1;
+  dims.legendHeight = 60;
   return dims;
 };
 
@@ -187,24 +180,23 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
     .unknown("#ccc");
   const legend = getLegend(categories, colorScale);
 
-
-
   /*            R E N D E R           */
   ref.div = renderContainer(domRef, width, height);
+  ref.header = renderSVGHeader(ref.div, width, dims.legendHeight);
+
   ref.svg = renderSVG(ref.div, width, height);
-  // ref.domXAxis = renderXAxis(ref.svg, dims, xAxis);
-  ref.svgX = renderAxis(ref.div, dims, xAxis, width);
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
-  renderTitle(ref.svg, dims, titleText);
+  renderTitle(ref.header, dims, titleText);
   if (categories.length > 1) {
-    renderLegend(ref.svg, dims, legend);
+    renderLegend(ref.header, dims, legend);
   }
+  ref.domXAxis = renderXAxis(ref.header, dims, xAxis);
 };
 
 const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
   const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
-  ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
+  // ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
   updateBars(ref.domBars, categories, data, xScale, ref.yScale);
 };
 
