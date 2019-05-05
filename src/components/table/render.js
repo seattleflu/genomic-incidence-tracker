@@ -14,7 +14,9 @@ const renderContainer = (ref, width, height) => {
     .append('div')
     .style('background-color', 'white')
     .attr('width', width + "px")
-    .attr('height', height + "px");
+    .attr('height', '500')
+    .style('overflow', 'auto')
+    .style('height', '500px'); // unless I also set the height as a style, the overflow won't work
   return div.node();
 };
 
@@ -36,6 +38,10 @@ const renderSVGHeader = (ref, width, height) => {
 };
 
 
+/**
+ * this is the "main" axis that will remain statick even with
+ * internal scrolling of the table
+ */
 const renderXAxis = (ref, dims, xAxis) => {
   const g = ref.append('g')
     .attr("class", "x axis")
@@ -44,6 +50,31 @@ const renderXAxis = (ref, dims, xAxis) => {
   g.call(xAxis)
     .selectAll(".tick line")
     .attr("stroke", "#8A9BA8");
+  return g;
+};
+
+/**
+ * a secondary axis function so that we can have ticks that go all the way
+ * down the table, but no text or actual "scale"
+ */
+const renderXAxisTicks = (ref, dims, xAxis) => {
+  const g = ref.append('g')
+    .attr("class", "x axis")
+    .attr("class", "internal")
+    .attr("transform", `translate(0,100)`);
+
+  const axis = g.call(xAxis);
+
+  // Note: this (below) only seems to work for the original rendering, not for after
+  // an update (say, when the user hits the toggle button)
+
+  axis.selectAll(".tick line")
+    .attr("stroke", "#8A9BA8");
+
+  axis.selectAll(".tick text").remove();
+
+  axis
+    .selectAll(".domain").remove();
   return g;
 };
 
@@ -141,18 +172,31 @@ const getXScaleAndAxis = (dims, domainEndValue) => {
   const xScale = scaleLinear()
     .domain([0, domainEndValue])
     .range([dims.x1, dims.x1 + dims.x2]);
+
   const xAxis = axisTop(xScale)
     .ticks(dims.width / 50, "s")
     .tickSizeInner(-1*dims.height);
+
   return [xScale, xAxis];
 };
+
 const getYScaleAndAxis = (dims, demes) => {
   const yScale = scaleBand()
     .domain(demes)
     .range([dims.y1, dims.y2]);
-  const yAxis = axisLeft(yScale)
+
+  // TODO: replace "yScale" with "y" once we're sure all this works
+  const y = scaleBand()
+    .domain(demes)
+    .range([dims.y1, (demes.length * 28) - 20])
+    .padding(0.5)
+    .align(0)
+    .round(true);
+
+  const yAxis = axisLeft(y)
     .tickSizeOuter(0);
-  return [yScale, yAxis];
+
+  return [y, yAxis];
 };
 
 
@@ -181,10 +225,12 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
   const legend = getLegend(categories, colorScale);
 
   /*            R E N D E R           */
+  
+  ref.header = renderSVGHeader(domRef, width, dims.legendHeight);
   ref.div = renderContainer(domRef, width, height);
-  ref.header = renderSVGHeader(ref.div, width, dims.legendHeight);
 
   ref.svg = renderSVG(ref.div, width, height);
+  ref.domXAxisInternal = renderXAxisTicks(ref.svg, dims, xAxis);
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
   renderTitle(ref.header, dims, titleText);
@@ -196,7 +242,16 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
 
 const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
   const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
-  // ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
+  ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
+
+  // TODO: currently having issues with updating "domXAxisInternal", as the 'domain'
+  // of the scale gets redrawn when pressing the toggle button. Not sure what the
+  // best approach is. I've tried several without success
+
+
+  // ref.domXAxisInternal.transition().duration(transitionDuration)
+  //   .call(xAxis, (g) => console.log(g));
+
   updateBars(ref.domBars, categories, data, xScale, ref.yScale);
 };
 
