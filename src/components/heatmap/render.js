@@ -132,8 +132,8 @@ const renderTitle = (svg, dims, text) => {
     .attr("class", "title")
     .attr("transform", `translate(${0},${dims.yTitle})`)
     .append("text")
-      .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
-      .text(text);
+    .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
+    .text(text);
 };
 
 const renderLegend = (svg, dims, legend) => {
@@ -175,7 +175,7 @@ const getXScaleAndAxis = (dims, domainEndValue) => {
 
   const xAxis = axisTop(xScale)
     .ticks(dims.width / 50, "s")
-    .tickSizeInner(-1*dims.height);
+    .tickSizeInner(-1 * dims.height);
 
   return [xScale, xAxis];
 };
@@ -216,17 +216,16 @@ const getDims = (width, height) => {
 };
 
 const initialRender = (domRef, ref, width, height, dims, categories, demes, data, domainEndValue, titleText) => {
-  console.log('dev', domainEndValue);
   const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
   const colorScale = scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
-    .domain([0, categories.length-1].reverse())
+    .domain([0, categories.length - 1].reverse())
     .unknown("#ccc");
   const legend = getLegend(categories, colorScale);
 
   /*            R E N D E R           */
-  
+
   ref.header = renderSVGHeader(domRef, width, dims.legendHeight);
   ref.div = renderContainer(domRef, width, height);
 
@@ -276,11 +275,11 @@ const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
  * https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
  *
  */
-export const renderD3Table = ({domRef, ref, width, height, data, showAsPerc, titleText}) => {
+export const renderD3Table = ({ domRef, ref, width, height, data, showAsPerc, titleText }) => {
   if (!data || !domRef) {
     return undefined;
   }
-  const {pathogen, categories, demes, counts, percentages, maxValue, primaryVariable} = data;
+  const { pathogen, categories, demes, counts, percentages, maxValue, primaryVariable } = data;
   const dataForVisualising = (stack().keys(categories))(showAsPerc ? percentages : counts);
   const domainEndValue = showAsPerc ? 100 : maxValue;
   const dims = getDims(width, height);
