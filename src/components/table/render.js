@@ -42,12 +42,12 @@ const renderSVGHeader = (ref, width, height) => {
  * this is the "main" axis that will remain statick even with
  * internal scrolling of the table
  */
-const renderXAxis = (ref, dims, xAxis) => {
+const renderXAxis = (ref, dims, axis) => {
   const g = ref.append('g')
     .attr("class", "x axis")
     .attr("transform", `translate(0,${dims.legendHeight - 2})`);
 
-  g.call(xAxis)
+  g.call(axis)
     .selectAll(".tick line")
     .attr("stroke", "#8A9BA8");
   return g;
@@ -57,24 +57,14 @@ const renderXAxis = (ref, dims, xAxis) => {
  * a secondary axis function so that we can have ticks that go all the way
  * down the table, but no text or actual "scale"
  */
-const renderXAxisTicks = (ref, dims, xAxis) => {
+const renderXAxisTicks = (ref, dims, axis) => {
   const g = ref.append('g')
     .attr("class", "x axis")
     .attr("class", "internal")
-    .attr("transform", `translate(0,100)`);
+    .attr("transform", `translate(0,0)`);
 
-  const axis = g.call(xAxis);
+  g.call(axis);
 
-  // Note: this (below) only seems to work for the original rendering, not for after
-  // an update (say, when the user hits the toggle button)
-
-  axis.selectAll(".tick line")
-    .attr("stroke", "#8A9BA8");
-
-  axis.selectAll(".tick text").remove();
-
-  axis
-    .selectAll(".domain").remove();
   return g;
 };
 
@@ -173,30 +163,40 @@ const getXScaleAndAxis = (dims, domainEndValue) => {
     .domain([0, domainEndValue])
     .range([dims.x1, dims.x1 + dims.x2]);
 
-  const xAxis = axisTop(xScale)
+  const xAxisHeader = axisTop(xScale)
     .ticks(dims.width / 50, "s")
     .tickSizeInner(-1*dims.height);
 
-  return [xScale, xAxis];
+  const xAxisBody = (selection) => {
+    selection.call(
+      axisTop(xScale)
+        .ticks(dims.width / 50, "s")
+        .tickSizeInner(-1 * dims.height)
+    );
+    selection.selectAll(".tick line")
+      .attr("stroke", "#8A9BA8");
+    selection.selectAll(".tick text")
+      .remove();
+    selection.selectAll(".domain")
+      .remove();
+  };
+  return [xScale, xAxisHeader, xAxisBody];
 };
 
 const getYScaleAndAxis = (dims, demes) => {
+  const maxHeight = demes.length === 1 ? 30 : (demes.length * 28) - 20; // for when it's just seattle
+
   const yScale = scaleBand()
     .domain(demes)
-    .range([dims.y1, dims.y2]);
-
-  // TODO: replace "yScale" with "y" once we're sure all this works
-  const y = scaleBand()
-    .domain(demes)
-    .range([dims.y1, (demes.length * 28) - 20])
+    .range([dims.y1, maxHeight])
     .padding(0.5)
     .align(0)
     .round(true);
 
-  const yAxis = axisLeft(y)
+  const yAxis = axisLeft(yScale)
     .tickSizeOuter(0);
 
-  return [y, yAxis];
+  return [yScale, yAxis];
 };
 
 
@@ -216,7 +216,7 @@ const getDims = (width, height) => {
 };
 
 const initialRender = (domRef, ref, width, height, dims, categories, demes, data, domainEndValue, titleText) => {
-  const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
+  const [xScale, xAxisHeader, xAxisBody] = getXScaleAndAxis(dims, domainEndValue);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
   const colorScale = scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
@@ -225,33 +225,25 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
   const legend = getLegend(categories, colorScale);
 
   /*            R E N D E R           */
-  
+
   ref.header = renderSVGHeader(domRef, width, dims.legendHeight);
   ref.div = renderContainer(domRef, width, height);
 
   ref.svg = renderSVG(ref.div, width, height);
-  ref.domXAxisInternal = renderXAxisTicks(ref.svg, dims, xAxis);
+  ref.domXAxisInternal = renderXAxisTicks(ref.svg, dims, xAxisBody);
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
   renderTitle(ref.header, dims, titleText);
   if (categories.length > 1) {
     renderLegend(ref.header, dims, legend);
   }
-  ref.domXAxis = renderXAxis(ref.header, dims, xAxis);
+  ref.domXAxis = renderXAxis(ref.header, dims, xAxisHeader);
 };
 
 const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
-  const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
-  ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
-
-  // TODO: currently having issues with updating "domXAxisInternal", as the 'domain'
-  // of the scale gets redrawn when pressing the toggle button. Not sure what the
-  // best approach is. I've tried several without success
-
-
-  // ref.domXAxisInternal.transition().duration(transitionDuration)
-  //   .call(xAxis, (g) => console.log(g));
-
+  const [xScale, xAxisHeader, xAxisBody] = getXScaleAndAxis(dims, domainEndValue);
+  ref.domXAxis.transition().duration(transitionDuration).call(xAxisHeader);
+  ref.domXAxisInternal.transition().duration(transitionDuration).call(xAxisBody);
   updateBars(ref.domBars, categories, data, xScale, ref.yScale);
 };
 
