@@ -22,6 +22,7 @@ const getModelResults = async (req, res) => {
     utils.warn(res.statusMessage);
     return res.status(500).end();
   }
+  utils.log('testing');
 
   const fname = `../data/${body.model_type}_${body.pathogen}_NEIGHBORHOOD_DISTRICT_NAME.csv`;
   const dataRaw = fs.readFileSync(path.resolve(__dirname, fname), 'utf8');
@@ -52,6 +53,14 @@ const getModelResults = async (req, res) => {
       mean: record.latent_field_mean,
       mode: record.latent_field_mode,
       quintile: record.latent_field_quintile
+      /* These seem to be the new column headers based on
+      https://github.com/seattleflu/simulated-data/tree/master/models/demo_deployment, however
+      this might be incorrect as the "inla" model in swagger has different keys.
+
+      week: record.encountered_week,
+      mean: record.modeled_intensity_mean,
+      mode: record.modeled_intensity_mode
+      */
     });
   });
   res.json(results);

@@ -1,3 +1,4 @@
+import { extent } from "d3-array";
 import * as types from "../actions/types";
 
 const initialState = {
@@ -18,6 +19,24 @@ const modelResults = (state = initialState, action) => {
   }
 };
 
+// **** "new" functions required to create a heat map
+
+/**
+ * @results {function} returns the an array of unique weeks present in the payload
+ */
+const getTimeRange = (data) => {
+  const weeks = data.map((d) => d.week);
+  return [...new Set(weeks)];
+};
+
+/**
+ * @results {function} returns the min and max values of the means, used to create a color scale
+ */
+const getMeanExtent = (data) => {
+  return extent(data, (d) => d.mean);
+};
+
+
 /*                        S E L E C T O R S                            */
 /* These should be the _only_ way data is accessed by react components */
 
@@ -28,12 +47,15 @@ export const selectModelErrorMessage = (state) => state.modelResults.message;
 export const selectModelResults = (modelData, demes, geoLinks, geoResolution, modellingDisplayVariable) => {
   const categories = ["incidence"];
   let maxValue = 0;
+  // getDateRange(modelData);
   const counts = modelData.map((d) => {
     const deme = geoLinks[d.residence_census_tract][geoResolution.value];
     const value = d[modellingDisplayVariable.value];
     if (value > maxValue) maxValue = value;
     return {key: deme, incidence: value};
   });
+
+  console.log('data', modelData);
 
   return {
     categories,
