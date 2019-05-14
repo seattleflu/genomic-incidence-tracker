@@ -10,6 +10,8 @@ const parse = require('csv-parse/lib/sync'); // https://csv.js.org/parse/api/
 const getModelResults = async (req, res) => {
   utils.log("getModelResults");
   const body = req.body;
+
+  // commenting this code so I can work on building a generic viz for modeled data
   if (
     (body.pathogen !== "h3n2" && body.pathogen !== "h1n1pdm") ||
     body.outcome !== "relative_incidence" ||
@@ -22,7 +24,9 @@ const getModelResults = async (req, res) => {
     utils.warn(res.statusMessage);
     return res.status(500).end();
   }
-  utils.log('testing');
+
+  // temporarily fetching a single, static csv
+  // const fname = `../data/latent.pathogen-h3n2.encountered_week.residence_census_tract.csv`;
 
   const fname = `../data/${body.model_type}_${body.pathogen}_NEIGHBORHOOD_DISTRICT_NAME.csv`;
   const dataRaw = fs.readFileSync(path.resolve(__dirname, fname), 'utf8');
@@ -43,24 +47,24 @@ const getModelResults = async (req, res) => {
 
   const results = [];
   records.forEach((record) => {
-    if (record.epi_week !== body.epi_week) return;
-    if (!nieghboToGeoid[record.NEIGHBORHOOD_DISTRICT_NAME]) {
-      utils.warn(`unknown NEIGHBORHOOD_DISTRICT_NAME ${record.NEIGHBORHOOD_DISTRICT_NAME}. Discarding`);
-      return;
-    }
-    results.push({
-      residence_census_tract: nieghboToGeoid[record.NEIGHBORHOOD_DISTRICT_NAME],
-      mean: record.latent_field_mean,
-      mode: record.latent_field_mode,
-      quintile: record.latent_field_quintile
-      /* These seem to be the new column headers based on
-      https://github.com/seattleflu/simulated-data/tree/master/models/demo_deployment, however
-      this might be incorrect as the "inla" model in swagger has different keys.
+    /* These couple of lines "roll up" the payload into the region density specified in the client,
+    e.g. n rows to 13 rows for "Neighborhood". This is not the shape we need the data in for the
+    modelling visualization as we need to get the mean PER week PER region, which we will have
+    to do in the client unless we get that neatly from the API
+    */
 
-      week: record.encountered_week,
-      mean: record.modeled_intensity_mean,
-      mode: record.modeled_intensity_mode
-      */
+    // if (record.epi_week !== body.epi_week) return;
+    // if (!nieghboToGeoid[record.NEIGHBORHOOD_DISTRICT_NAME]) {
+    //   utils.warn(`unknown NEIGHBORHOOD_DISTRICT_NAME ${record.NEIGHBORHOOD_DISTRICT_NAME}. Discarding`);
+    //   return;
+    // }
+    results.push({
+    /* we need to agree on the keys/column headers that we will get from the API.
+       currently we only strictly need the week, the region and the mean
+    */
+      week: record.epi_week,
+      region: record.NEIGHBORHOOD_DISTRICT_NAME,
+      mean: record.latent_field_mean
     });
   });
   res.json(results);

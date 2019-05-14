@@ -52,7 +52,9 @@ export const makeSelectDataForChart = () => {
       modellingDisplayVariable
     ) => {
       if (modelView) {
-        return selectModelResults(modelData, demes, geoLinks, geoResolution, modellingDisplayVariable);
+        // console.log(modelView);
+        // return selectModelResults(modelData, demes, geoLinks, geoResolution, modellingDisplayVariable);
+        return selectModelResults(modelData);
       }
       return selectRawDataResults(results, categories, demes, geoLinks, geoResolution, pathogenSelected, primaryVariable, groupByVariable, groupByValue);
     }

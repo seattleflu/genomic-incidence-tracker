@@ -79,6 +79,10 @@ const Table = (props) => {
 const makeMapStateToProps = () => {
   const selectDataForChart = makeSelectDataForChart();
   const mapStateToProps = (state, props) => {
+    /* We have to decide whether to call a different Table (e.g. a Heatmap component)
+    if (isModelViewSelected(state) === true), or whether we want to handle two different types
+    of tables within the Table component. As of right now, this is causing an error because
+    Table expects certain variables that the modeling data will not provide, and I'm sincerely stuck */
     return {
       data: selectDataForChart(state, props),
       isModelViewSelected: isModelViewSelected(state),

@@ -52,7 +52,7 @@ const Geo = ({width, height, geoResolution, geoJsonData, geoLinks, resultsData, 
   return (
     <Container width={width} height={height}>
       <HoverInfoBox hoverState={hoverState} boundingBoxRef={refElement}/>
-      <div ref={refElement}/>
+      {/* <div ref={refElement}/> */}
     </Container>
   );
 };

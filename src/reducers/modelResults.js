@@ -49,13 +49,12 @@ export const selectModelResults = (modelData, demes, geoLinks, geoResolution, mo
   let maxValue = 0;
   // getDateRange(modelData);
   const counts = modelData.map((d) => {
-    const deme = geoLinks[d.residence_census_tract][geoResolution.value];
-    const value = d[modellingDisplayVariable.value];
-    if (value > maxValue) maxValue = value;
-    return {key: deme, incidence: value};
+    // console.log('data', modelData);
+    // const deme = geoLinks[d.residence_census_tract][geoResolution.value];
+    // const value = d[modellingDisplayVariable.value];
+    // if (value > maxValue) maxValue = value;
+    // return {key: deme, incidence: value};
   });
-
-  console.log('data', modelData);
 
   return {
     categories,
