@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
 import Table, { tableDimensions } from "../table";
+import Heatmap from "../heatmap";
 import Geo, { geoDimensions } from "../geo";
 import { selectCategoriesForGroupByVariable } from "../../reducers/results";
 import { isModelViewSelected } from "../../reducers/settings";
@@ -67,8 +68,10 @@ const ChartLayout = (props) => {
   /* what to render? */
   const renderList = [];
   if (!props.groupByCategories || chartType === "table") {
-    const tables = getTablesToRender(props.modelViewSelected, props.groupByCategories);
-    tables.forEach((t) => renderList.push(t));
+    if (!props.modelViewSelected) {
+      const tables = getTablesToRender(props.modelViewSelected, props.groupByCategories);
+      tables.forEach((t) => renderList.push(t));
+    } else renderList.push(<Heatmap/>);
   }
   if (!props.groupByCategories || chartType === "map") {
     const maps = getMapsToRender(props.modelViewSelected, props.groupByCategories);

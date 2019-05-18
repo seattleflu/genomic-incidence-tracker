@@ -27,7 +27,7 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
   cursor: pointer;
 `;
 
-const Table = (props) => {
+const Heatmap = (props) => {
   const refElement = useRef(null);
   const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("count");
@@ -44,12 +44,12 @@ const Table = (props) => {
       width: props.width - 2 * margin,
       // I had to set a validation here because it seems sometimes props.data.demes is not
       // defined during first load, and this would crash the app
-      height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
-      data: props.data,
-      titleText,
-      showAsPerc: percCountToggle === "perc",
-      selectedTime: props.selectedTime,
-      selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
+      // height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
+      data: props.data
+      // titleText,
+      // showAsPerc: percCountToggle === "perc",
+      // selectedTime: props.selectedTime,
+      // selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
     })
   );
 
@@ -89,4 +89,4 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps)(Table);
+export default connect(makeMapStateToProps)(Heatmap);
