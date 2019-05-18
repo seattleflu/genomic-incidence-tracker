@@ -61,7 +61,7 @@ const renderXAxisTicks = (ref, dims, xAxis) => {
   const g = ref.append('g')
     .attr("class", "x axis")
     .attr("class", "internal")
-    .attr("transform", `translate(0,100)`);
+    .attr("transform", `translate(0,0)`);
 
   const axis = g.call(xAxis);
 

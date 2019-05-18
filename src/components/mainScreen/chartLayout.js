@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
 import Table, { tableDimensions } from "../table";
-import Heatmap from "../heatmap";
+import Heatmap, { heatmapDimensions } from "../heatmap";
 import Geo, { geoDimensions } from "../geo";
 import { selectCategoriesForGroupByVariable } from "../../reducers/results";
 import { isModelViewSelected } from "../../reducers/settings";
@@ -40,6 +40,16 @@ const getTablesToRender = (modelViewSelected, groupByCategories) => {
   ]);
 };
 
+const getHeatmapsToRender = () => {
+  return ([
+    <Heatmap
+      key={"mainHeatmap"}
+      width={heatmapDimensions.minWidth}
+      height={heatmapDimensions.minHeight}
+    />
+  ]);
+};
+
 const getMapsToRender = (modelViewSelected, groupByCategories) => {
   /* calculate a list of all the maps to render... */
   if (!modelViewSelected && groupByCategories) {
@@ -71,7 +81,7 @@ const ChartLayout = (props) => {
     if (!props.modelViewSelected) {
       const tables = getTablesToRender(props.modelViewSelected, props.groupByCategories);
       tables.forEach((t) => renderList.push(t));
-    } else renderList.push(<Heatmap/>);
+    } else renderList.push(getHeatmapsToRender());
   }
   if (!props.groupByCategories || chartType === "map") {
     const maps = getMapsToRender(props.modelViewSelected, props.groupByCategories);

@@ -5,7 +5,7 @@ import { makeSelectDataForChart } from "../../reducers/selectResults";
 import { renderD3Table } from "./render";
 import { selectTimeValue, selectModellingDisplayVariable, isModelViewSelected } from "../../reducers/settings";
 
-export const tableDimensions = {
+export const heatmapDimensions = {
   minWidth: 570,
   maxWidth: 1000,
   minHeight: 550,
@@ -61,7 +61,7 @@ const Heatmap = (props) => {
   };
 
   return (
-    <Container width={props.width} height={tableDimensions.minHeight}>
+    <Container width={props.width} height={heatmapDimensions.minHeight}>
       {renderPercentageCountsToggle()}
       <div ref={refElement} />
     </Container>
