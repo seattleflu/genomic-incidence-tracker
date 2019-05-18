@@ -28,6 +28,7 @@ const Toggle = styled.button` /* to do: actually make this a toggle! */
 `;
 
 const Heatmap = (props) => {
+  console.log(props);
   const refElement = useRef(null);
   const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("count");
@@ -42,14 +43,11 @@ const Heatmap = (props) => {
       domRef: refElement.current,
       ref: ref.current,
       width: props.width - 2 * margin,
-      // I had to set a validation here because it seems sometimes props.data.demes is not
-      // defined during first load, and this would crash the app
-      // height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
-      data: props.data
+      height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
+      data: props.data,
       // titleText,
-      // showAsPerc: percCountToggle === "perc",
-      // selectedTime: props.selectedTime,
-      // selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
+      selectedTime: props.selectedTime,
+      selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
     })
   );
 

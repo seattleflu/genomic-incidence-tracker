@@ -63,7 +63,7 @@ const _flattenNest = (data, modellingDisplayVariable) => {
   nest.map((d) => {
     const rObj = {};
     d[1].map((e) => {
-      rObj[e.week] = parseFloat(e[variable]);
+      rObj[e.week] = parseFloat(e[modellingDisplayVariable]);
       return rObj;
     });
     rObj.key = d[0];

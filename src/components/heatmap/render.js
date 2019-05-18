@@ -278,8 +278,8 @@ import { interpolateSpectral } from "d3-scale-chromatic";
 //  *
 //  */
 
-const initialRender = (domRef, ref, width, data) => {
-  console.log(data);
+const initialRender = (domRef, ref, width, height, data, selectedModellingDisplayVariable) => {
+  console.log(data, selectedModellingDisplayVariable);
 };
 
 export const renderD3Table = ({data}) => {
