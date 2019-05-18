@@ -8,7 +8,7 @@ import { selectTimeValue, selectModellingDisplayVariable, isModelViewSelected } 
 export const tableDimensions = {
   minWidth: 570,
   maxWidth: 1000,
-  minHeight: 450,
+  minHeight: 550,
   maxHeight: 1000
 };
 const margin = 10;
@@ -42,7 +42,9 @@ const Table = (props) => {
       domRef: refElement.current,
       ref: ref.current,
       width: props.width-2*margin,
-      height: props.height-2*margin,
+      // I had to set a validation here because it seems sometimes props.data.demes is not
+      // defined during first load, and this would crash the app
+      height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
       data: props.data,
       titleText,
       showAsPerc: percCountToggle==="perc",
@@ -61,7 +63,7 @@ const Table = (props) => {
   };
 
   return (
-    <Container width={props.width} height={props.height}>
+    <Container width={props.width} height={tableDimensions.minHeight}>
       {renderPercentageCountsToggle()}
       <div ref={refElement}/>
     </Container>

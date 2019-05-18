@@ -1,13 +1,24 @@
 import { select } from "d3-selection";
 import 'd3-transition';
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisTop, axisLeft } from "d3-axis";
 import { stack } from "d3-shape";
 import { interpolateSpectral } from "d3-scale-chromatic";
 
 /* CSS classes can't have spaces, special chars etc */
 const makeClassName = (x) => x.replace(/[ /<>+]/g, '_');
 const transitionDuration = 1000;
+
+const renderContainer = (ref, width, height) => {
+  const div = select(ref)
+    .append('div')
+    .style('background-color', 'white')
+    .attr('width', width + "px")
+    .attr('height', '500')
+    .style('overflow', 'auto')
+    .style('height', '500px'); // unless I also set the height as a style, the overflow won't work
+  return div.node();
+};
 
 const renderSVG = (ref, width, height) => {
   const svg = select(ref)
@@ -18,13 +29,42 @@ const renderSVG = (ref, width, height) => {
   return svg;
 };
 
-const renderXAxis = (svg, dims, xAxis) => {
-  const g = svg.append("g")
-    .attr("class", "x axis");
-  g.attr("transform", `translate(0,${dims.y2})`)
-    .call(xAxis)
+const renderSVGHeader = (ref, width, height) => {
+  const svg = select(ref)
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height);
+  return svg;
+};
+
+
+/**
+ * this is the "main" axis that will remain statick even with
+ * internal scrolling of the table
+ */
+const renderXAxis = (ref, dims, axis) => {
+  const g = ref.append('g')
+    .attr("class", "x axis")
+    .attr("transform", `translate(0,${dims.legendHeight - 2})`);
+
+  g.call(axis)
     .selectAll(".tick line")
     .attr("stroke", "#8A9BA8");
+  return g;
+};
+
+/**
+ * a secondary axis function so that we can have ticks that go all the way
+ * down the table, but no text or actual "scale"
+ */
+const renderXAxisTicks = (ref, dims, axis) => {
+  const g = ref.append('g')
+    .attr("class", "x axis")
+    .attr("class", "internal")
+    .attr("transform", `translate(0,0)`);
+
+  g.call(axis);
+
   return g;
 };
 
@@ -80,7 +120,7 @@ const updateBars = (domBars, categories, data, xScale, yScale) => {
 const renderTitle = (svg, dims, text) => {
   svg.append("g")
     .attr("class", "title")
-    .attr("transform", `translate(${dims.x1},${dims.yTitle})`)
+    .attr("transform", `translate(${0},${dims.yTitle})`)
     .append("text")
       .attr("font-family", "Lato, Helvetica Neue, Helvetica, sans-serif")
       .text(text);
@@ -89,7 +129,7 @@ const renderTitle = (svg, dims, text) => {
 const renderLegend = (svg, dims, legend) => {
   svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${dims.x1},${dims.yLegend})`)
+    .attr("transform", `translate(${50},${dims.yLegend})`)
     .call(legend);
 };
 
@@ -102,7 +142,7 @@ const getLegend = (categories, colorScale) => (svg) => {
     .selectAll("g")
     .data(categories)
     .join("g")
-    .attr("transform", (d, i) => `translate(${i * 60 + 30},${0})`);
+    .attr("transform", (d, i) => `translate(${i * 60},${0})`);
 
   g.append("rect")
     .attr("x", -16)
@@ -122,17 +162,40 @@ const getXScaleAndAxis = (dims, domainEndValue) => {
   const xScale = scaleLinear()
     .domain([0, domainEndValue])
     .range([dims.x1, dims.x1 + dims.x2]);
-  const xAxis = axisBottom(xScale)
+
+  const xAxisHeader = axisTop(xScale)
     .ticks(dims.width / 50, "s")
     .tickSizeInner(-1*dims.height);
-  return [xScale, xAxis];
+
+  const xAxisBody = (selection) => {
+    selection.call(
+      axisTop(xScale)
+        .ticks(dims.width / 50, "s")
+        .tickSizeInner(-1 * dims.height)
+    );
+    selection.selectAll(".tick line")
+      .attr("stroke", "#8A9BA8");
+    selection.selectAll(".tick text")
+      .remove();
+    selection.selectAll(".domain")
+      .remove();
+  };
+  return [xScale, xAxisHeader, xAxisBody];
 };
+
 const getYScaleAndAxis = (dims, demes) => {
+  const maxHeight = demes.length === 1 ? 30 : (demes.length * 28) - 20; // for when it's just seattle
+
   const yScale = scaleBand()
     .domain(demes)
-    .range([dims.y1, dims.y2]);
+    .range([dims.y1, maxHeight])
+    .padding(0.5)
+    .align(0)
+    .round(true);
+
   const yAxis = axisLeft(yScale)
     .tickSizeOuter(0);
+
   return [yScale, yAxis];
 };
 
@@ -141,18 +204,19 @@ const getDims = (width, height) => {
   const dims = {
     x1: 130, /* left margin, measured L-R */
     x2: width - 140, /* right margin, measured L-R */
-    y1: 45, /* top margin, measured T-B */
+    y1: 0, /* top margin, measured T-B */
     y2: height - 20, /* bottom margin, measured T-B */
     yTitle: 15,
     yLegend: 38
   };
   dims.width = dims.x2 - dims.x1;
   dims.height = dims.y2 - dims.y1;
+  dims.legendHeight = 60;
   return dims;
 };
 
 const initialRender = (domRef, ref, width, height, dims, categories, demes, data, domainEndValue, titleText) => {
-  const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
+  const [xScale, xAxisHeader, xAxisBody] = getXScaleAndAxis(dims, domainEndValue);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
   const colorScale = scaleSequential((t) => interpolateSpectral(t * 0.8 + 0.1))
@@ -161,19 +225,25 @@ const initialRender = (domRef, ref, width, height, dims, categories, demes, data
   const legend = getLegend(categories, colorScale);
 
   /*            R E N D E R           */
-  ref.svg = renderSVG(domRef, width, height);
-  ref.domXAxis = renderXAxis(ref.svg, dims, xAxis);
+
+  ref.header = renderSVGHeader(domRef, width, dims.legendHeight);
+  ref.div = renderContainer(domRef, width, height);
+
+  ref.svg = renderSVG(ref.div, width, height);
+  ref.domXAxisInternal = renderXAxisTicks(ref.svg, dims, xAxisBody);
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, categories, data, colorScale, xScale, yScale);
-  renderTitle(ref.svg, dims, titleText);
+  renderTitle(ref.header, dims, titleText);
   if (categories.length > 1) {
-    renderLegend(ref.svg, dims, legend);
+    renderLegend(ref.header, dims, legend);
   }
+  ref.domXAxis = renderXAxis(ref.header, dims, xAxisHeader);
 };
 
 const transitionXValues = (ref, dims, categories, data, domainEndValue) => {
-  const [xScale, xAxis] = getXScaleAndAxis(dims, domainEndValue);
-  ref.domXAxis.transition().duration(transitionDuration).call(xAxis);
+  const [xScale, xAxisHeader, xAxisBody] = getXScaleAndAxis(dims, domainEndValue);
+  ref.domXAxis.transition().duration(transitionDuration).call(xAxisHeader);
+  ref.domXAxisInternal.transition().duration(transitionDuration).call(xAxisBody);
   updateBars(ref.domBars, categories, data, xScale, ref.yScale);
 };
 
