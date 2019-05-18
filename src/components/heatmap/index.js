@@ -33,10 +33,7 @@ const Heatmap = (props) => {
   const ref = useRef({}); /* see renderD3Table for description */
   const [percCountToggle, changePercCountToggle] = useState("count");
 
-  const titleText = !props.data ?
-    "" : props.isModelViewSelected ?
-      `Modelling ${props.selectedModellingDisplayVariable.label} incidence for ${props.selectedTime.label}` :
-      `${props.data.primaryVariable.label}${props.data.groupByVariable ? ` with ${props.data.groupByVariable.label} restricted to ${props.data.groupByValue}` : ""}`;
+  const titleText = `Modeled Latent Field (${props.selectedModellingDisplayVariable.label})`;
 
   useEffect(() =>
     renderD3Table({
@@ -45,7 +42,7 @@ const Heatmap = (props) => {
       width: props.width - 2 * margin,
       height: !props.data.demes ? props.height - 2 * margin : props.data.demes.length * 28,
       data: props.data,
-      // titleText,
+      titleText,
       selectedTime: props.selectedTime,
       selectedModellingDisplayVariable: props.selectedModellingDisplayVariable
     })
