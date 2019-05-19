@@ -4,6 +4,7 @@ import { geoPath, geoMercator } from "d3-geo";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { interpolatePlasma } from "d3-scale-chromatic";
 import { axisBottom } from "d3-axis";
+import { group, max, mean } from "d3-array";
 
 const unknownFill = "rgb(150, 150, 150)";
 
@@ -20,8 +21,22 @@ const unknownFill = "rgb(150, 150, 150)";
  * P.S. see the note on the JSDoc for renderD3Table
  */
 export const renderMap = ({ref, width, height, resultsData, modelViewSelected, selectedModellingDisplayVariable, geoJsonData, geoResolution, geoLinks, handleHoverOver, handleHoverOut, theme}) => {
+
+  if (modelViewSelected) {
+    // const getDemeName = (d) => geoLinks[d.properties.GEOID][geoResolution.value];
+
+    const obj = {};
+    const meansByRegion = Array.from(group(resultsData.modelData, (d) => d.region));
+    meansByRegion.forEach((d) => {
+      obj[d[0]] = mean(d[1], (e) => e.mean);
+      return obj;
+    });
+
+    resultsData.overallMean = obj;
+  }
   if (!resultsData || !geoJsonData || !ref) return undefined;
   const {primaryVariable, categories, groupByVariable, groupByValue} = resultsData;
+
   let mainTitle = modelViewSelected ?
     `Modeling ${selectedModellingDisplayVariable.label} incidence` : primaryVariable.label;
   const secondaryTitle = groupByVariable ? `${groupByVariable.label} restricted to ${groupByValue}` : "";
@@ -56,20 +71,26 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
   let fill; // will be passed to d3, so can be a string or a function receiving a data point
   let legend;
   let makeInfo;
-  if (categories.length > 2) {
+  if (categories && categories.length > 2) {
     console.warn(`Cannot display simple chloropleth for this ${primaryVariable.label} with ${categories.length} categories`);
     fill = unknownFill;
     mainTitle += " (viz not implemented)";
     makeInfo = (d) => `${getDemeName(d)}`;
   } else {
     /* what category do we want to visualise? (e.g. % Male or % Female ?!?) */
-    const vizCategory = categories[0];
+    let vizCategory;
+    if (!modelViewSelected) {
+      vizCategory = categories[0];
+    }
     /* what are the values for this category for each deme? */
-    const demeValues = {};
+    let demeValues = {};
     let domainMax;
+
+    // This part affects the map for modeling data
     if (modelViewSelected) {
-      resultsData.counts.forEach((d) => {demeValues[d.key] = d[vizCategory];});
-      domainMax = resultsData.maxValue;
+      demeValues = resultsData.overallMean;
+      domainMax = max(Object.values(demeValues));
+
     } else {
       resultsData.percentages.forEach((d) => {demeValues[d.key] = d[vizCategory];});
       domainMax = 100;
@@ -156,7 +177,7 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
     /* https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient.html */
     const linearGradient = svg.append("defs")
       .append("linearGradient")
-      .attr("id", "linear-gradient");
+      .attr("id", "linear-gradient-geo");
 
     linearGradient.selectAll("stop")
       .data([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) /* gradient percs */
@@ -174,7 +195,7 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
       .attr("width", dims.legx2-dims.legx1)
       .attr("height", dims.legHeight)
       .attr("transform", `translate(${dims.legx1}, ${dims.legy1-dims.legHeight+1})`)
-      .style("fill", "url(#linear-gradient)");
+      .style("fill", "url(#linear-gradient-geo)");
   }
 
   return undefined;

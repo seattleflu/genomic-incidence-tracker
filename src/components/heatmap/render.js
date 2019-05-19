@@ -1,9 +1,9 @@
 import { select } from "d3-selection";
 import 'd3-transition';
-import { scaleBand, scaleSequential, scaleTime } from "d3-scale";
+import { scaleLinear, scaleBand, scaleSequential, scaleTime } from "d3-scale";
 import { extent } from "d3-array";
 import { timeMonth } from "d3-time";
-import { axisTop, axisLeft } from "d3-axis";
+import { axisTop, axisBottom, axisLeft } from "d3-axis";
 import { stack } from "d3-shape";
 import { interpolateReds } from "d3-scale-chromatic";
 
@@ -136,14 +136,14 @@ const renderTitle = (svg, dims, text) => {
     .text(text);
 };
 
-const renderLegend = (svg, dims, legend) => {
+const renderLegend = (svg, dims, axis) => {
   svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${50},${dims.yLegend})`)
-    .call(legend);
+    .attr("transform", `translate(${dims.x2 + dims.x1 - 300},${dims.yLegend})`)
+    .call(axis);
 };
 
-const getLegend = (dims, colorScale) => (svg) => {
+const getLegend = (svg, dims, colorScale) => {
   const linearGradient = svg.append("defs")
     .append("linearGradient")
     .attr("id", "linear-gradient");
@@ -161,9 +161,9 @@ const getLegend = (dims, colorScale) => (svg) => {
   svg.append("g")
     .attr("class", "legend gradient")
     .append("rect")
-    .attr("width", 400)
+    .attr("width", 300)
     .attr("height", dims.colorBarHeight)
-    .attr("transform", `translate(${dims.x1}, ${0})`)
+    .attr("transform", `translate(${(dims.x2 + dims.x1 - 300)},${dims.yLegend})`)
     .style("fill", "url(#linear-gradient)");
 };
 
@@ -207,6 +207,35 @@ const getYScaleAndAxis = (dims, demes) => {
   return [y, yAxis];
 };
 
+const getColorScaleAndAxis = (minAndMax) => {
+  const colorScale = scaleSequential(interpolateReds)
+    .domain(minAndMax)
+    .unknown("#ccc");
+
+  const colorAxis = axisBottom()
+    .scale(
+      scaleLinear()
+        .range([0, 300])
+        .domain(colorScale.domain())
+    )
+    .tickSize(10)
+    .ticks(8);
+
+  return [colorScale, colorAxis];
+
+};
+
+// const colorScale = scaleSequential(interpolateReds)
+//   .unknown("#ccc");
+
+// const colorAxis = axisBottom()
+//   .scale(
+//     scaleLinear()
+//       .range([0, 300])
+//       .domain(colorScale.domain())
+//   )
+//   .tickSize(10)
+//   .ticks(8);
 
 const getDims = (width, height) => {
   const dims = {
@@ -224,15 +253,11 @@ const getDims = (width, height) => {
   return dims;
 };
 
-const colorScale = scaleSequential(interpolateReds)
-  .unknown("#ccc");
-
 const initialRender = (domRef, ref, width, height, dims, demes, data, weeksISO, weeks, varExtent, titleText) => {
   const [xScale, xAxisHeader, xAxisBody] = getXScaleAndAxis(dims, weeksISO);
   const [yScale, yAxis] = getYScaleAndAxis(dims, demes);
+  const [colorScale, colorAxis] = getColorScaleAndAxis(varExtent);
   ref.yScale = yScale; /* store to avoid recalculation for updates */
-  colorScale.domain(varExtent);
-  const legend = getLegend(dims, colorScale);
 
   /*            R E N D E R           */
 
@@ -244,7 +269,8 @@ const initialRender = (domRef, ref, width, height, dims, demes, data, weeksISO, 
   ref.domYAxis = renderYAxis(ref.svg, dims, yAxis);
   ref.domBars = renderBars(ref.svg, data, colorScale, yScale, dims, weeks);
   renderTitle(ref.header, dims, titleText);
-  renderLegend(ref.header, dims, legend);
+  getLegend(ref.header, dims, colorScale);
+  renderLegend(ref.header, dims, colorAxis);
   ref.domXAxis = renderXAxis(ref.header, dims, xAxisHeader);
 };
 
@@ -259,7 +285,8 @@ const transitionXValues = (ref, dims, data, weeks, weeksISO, color) => {
 export const renderD3Table = ({ domRef, ref, width, height, data, titleText, selectedModellingDisplayVariable}) => {
   const { demes } = data;
   const dims = getDims(width, height);
-  const weekLength = (dims.x1 + dims.x2)/ data.weeks.length;
+  // I'm a bit confused as to why the total width of the chart is dims.width + dims.x1 and not dims.width
+  const weekLength = (dims.width + dims.x1)/ data.weeks.length;
   const dataForVisualising = (stack().keys(data.weeks).value(weekLength))(data.flatDate);
 
   if (!ref.svg) { /* initial rendering of the chart */

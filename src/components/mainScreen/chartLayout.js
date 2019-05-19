@@ -84,8 +84,10 @@ const ChartLayout = (props) => {
     } else renderList.push(getHeatmapsToRender());
   }
   if (!props.groupByCategories || chartType === "map") {
-    const maps = getMapsToRender(props.modelViewSelected, props.groupByCategories);
-    maps.forEach((m) => renderList.push(m));
+    // if (!props.modelViewSelected) {
+      const maps = getMapsToRender(props.modelViewSelected, props.groupByCategories);
+      maps.forEach((m) => renderList.push(m));
+    // }
   }
 
   return (
