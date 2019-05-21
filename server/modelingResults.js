@@ -11,7 +11,6 @@ const getModelResults = async (req, res) => {
   utils.log("getModelResults");
   const body = req.body;
 
-  // commenting this code so I can work on building a generic viz for modeled data
   if (
     (body.pathogen !== "h3n2" && body.pathogen !== "h1n1pdm") ||
     body.outcome !== "relative_incidence" ||
@@ -28,7 +27,7 @@ const getModelResults = async (req, res) => {
   // temporarily fetching a single, static csv
   // const fname = `../data/latent.pathogen-h3n2.encountered_week.residence_census_tract.csv`;
 
-  const fname = `../data/${body.model_type}_${body.pathogen}_NEIGHBORHOOD_DISTRICT_NAME.csv`;
+  const fname = `../data/${body.model_type}_${body.pathogen}_NEIGHBORHOOD_DISTRICT_NAME_real.csv`;
   const dataRaw = fs.readFileSync(path.resolve(__dirname, fname), 'utf8');
 
   /* coerce into the same format as the "results" are */
@@ -62,9 +61,12 @@ const getModelResults = async (req, res) => {
     /* we need to agree on the keys/column headers that we will get from the API.
        currently we only strictly need the week, the region and the mean
     */
-      week: record.epi_week,
-      region: record.NEIGHBORHOOD_DISTRICT_NAME,
-      mean: record.latent_field_mean
+      week: record.encountered_week,
+      // week: record.epi_week,
+      region: record.residence_neighborhood_district_name,
+      // region: record.NEIGHBORHOOD_DISTRICT_NAME,
+      mean: record.modeled_intensity_median
+      // mean: record.latent_field_mean
     });
   });
   res.json(results);
