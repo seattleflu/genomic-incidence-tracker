@@ -54,6 +54,7 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
 
   /* calculate fills, legends etc based on the data type */
   let fill; // will be passed to d3, so can be a string or a function receiving a data point
+  let circleSize; // passed to d3, maps deme to circle size
   let legend;
   let makeInfo;
   if (categories.length > 2) {
@@ -97,6 +98,20 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
       return colourScale(demeValues[deme]);
     };
 
+    const demeToTotalCount = {};
+    resultsData.counts.forEach((count) => {
+      demeToTotalCount[count['key']] = 0;
+      resultsData.categories.forEach((category) => {
+        demeToTotalCount[count['key']] += count[category];
+      });
+    });
+
+    circleSize = (d) => {
+      const deme = getDemeName(d);
+      const count = demeToTotalCount[deme];
+      return 2.0 * Math.sqrt(count);
+    };
+
     legend = {};
     legend.scale = colourScale;
     legend.axis = axisBottom()
@@ -137,9 +152,26 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
     .data(geoJsonData.features)
     .enter()
     .append("path") /* the rendered shape */
-    .attr("fill", fill)
+    .attr("fill", "#ccc")
     .attr("stroke", "white")
     .attr("d", geoPathGenerator)
+    .on("mouseenter", (d) => {handleHoverOver(makeInfo(d), d3event.pageX, d3event.pageY);})
+    .on("mouseleave", handleHoverOut);
+
+  /* render centroids */
+  svg.append("g")
+    .attr("class", "geoCentroids")
+    .selectAll("centroids")
+    .data(geoJsonData.features)
+    .enter()
+    .append("circle")
+    .attr("fill", fill)
+    .attr("stroke", "white")
+    .attr("r", circleSize)
+    .attr("transform", (d) => {
+      const centroid = geoPathGenerator.centroid(d);
+      return "translate(" + centroid[0] + "," + centroid[1] + ")";
+    })
     .on("mouseenter", (d) => {handleHoverOver(makeInfo(d), d3event.pageX, d3event.pageY);})
     .on("mouseleave", handleHoverOut);
 
@@ -179,4 +211,3 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
 
   return undefined;
 };
-
