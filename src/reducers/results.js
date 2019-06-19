@@ -26,22 +26,28 @@ const resultsReducer = (state = null, action) => {
  */
 const _variableToCategory = (data, variable) => {
   let category;
-  if (variable.type === "boolean") {
-    category = data[variable.value] ? "Yes" : "No";
-  } else if (variable.type === "categorical") {
-    category = data[variable.value];
-  } else if (variable.type === "continuous") {
-    const value = parseInt(data[variable.value], 10); /* TO DO -- may not be an int! */
-    for (const bin of variable.bins) {
-      /* bins are half open [a, b) where a=bin[0], b=bin[1]. bin[2] is category label */
-      if (value >= bin[0] && value < bin[1]) {
-        category = bin[2];
-        break;
+
+  switch (variable.type) {
+    case "boolean":
+      category = data[variable.value] ? "Yes" : "No";
+      break;
+    case "categorical":
+      category = data[variable.value];
+      break;
+    case "continuous":
+      const value = parseInt(data[variable.value], 10); /* TO DO -- may not be an int! */
+      for (const bin of variable.bins) {
+        /* bins are half open [a, b) where a=bin[0], b=bin[1]. bin[2] is category label */
+        if (value >= bin[0] && value < bin[1]) {
+          category = bin[2];
+          break;
+        }
       }
-    }
-  } else {
-    throw Error(`invalid variable type ${variable.type}`);
+      break;
+    default:
+      throw Error(`invalid variable type ${variable.type}`);
   }
+
   return category;
 };
 
