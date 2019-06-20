@@ -164,21 +164,26 @@ const getCategories = (results, variable) => {
   }
   // console.log("SELECTOR selectCategoriesFor:", variable.value);
   let categories;
-  if (variable.type === "boolean") {
-    categories = ["Yes", "No"];
-  } else if (variable.type === "categorical") {
-    categories = [];
-    results.forEach((d) => {
-      const value = d[variable.value];
-      if (value && !categories.includes(value)) {
-        categories.push(value);
-      }
-    });
-  } else if (variable.type === "continuous") {
-    categories = variable.bins.map((b) => b[2]);
-  } else {
-    throw Error(`invalid primaryVariable.type ${variable.type}`);
+  switch (variable.type) {
+    case "boolean":
+      categories = ["Yes", "No"];
+      break;
+    case "categorical":
+      categories = [];
+      results.forEach((d) => {
+        const value = d[variable.value];
+        if (value && !categories.includes(value)) {
+          categories.push(value);
+        }
+      });
+      break;
+    case "continuous":
+      categories = variable.bins.map((b) => b[2]);
+      break;
+    default:
+      throw Error(`invalid primaryVariable.type ${variable.type}`);
   }
+
   return categories;
 };
 
