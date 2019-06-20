@@ -22,12 +22,15 @@ const resultsReducer = (state = null, action) => {
  * If the variable is continous then return the appropriate bin (aka category label)
  * @param {object} data an element of the results array
  * @param {object} variable a chosen variable (primary or group-by).
- *  Obligatory keys: `value`, `label`, `type`. Optional keys: `bins`
+ *  Obligatory keys: `value`, `label`, `type`. Optional keys: `bins`, `sub_var`.
  */
 const _variableToCategory = (data, variable) => {
   let category;
 
   switch (variable.type) {
+    case "count":
+      category = data[variable.sub_var] ? "Yes" : null;
+      break;
     case "boolean":
       category = data[variable.value] ? "Yes" : "No";
       break;
@@ -167,6 +170,9 @@ const getCategories = (results, variable) => {
     case "boolean":
       categories = ["Yes", "No"];
       break;
+    case "count":
+      categories = ["Yes"];
+      break;
     case "categorical":
       categories = [];
       results.forEach((d) => {
@@ -213,12 +219,19 @@ export const selectRawDataResults = (results, categories, demes, geoLinks, geoRe
   const pathogenFilter = _createPathogenFilter(pathogenSelected);
   const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
   const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
-  const percentages = _calcPercentages(categories, counts);
+
+  let mapData = null;
+  if (categories.length < 2) {
+    mapData = counts;
+  } else {
+    mapData = _calcPercentages(categories, counts);
+  }
+
   return {
     pathogen: pathogenSelected,
     demes,
     counts,
-    percentages,
+    mapData,
     categories,
     maxValue,
     primaryVariable,
@@ -228,4 +241,3 @@ export const selectRawDataResults = (results, categories, demes, geoLinks, geoRe
 };
 
 export default resultsReducer;
-

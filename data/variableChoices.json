@@ -65,6 +65,7 @@
   "primaryVariable": {
     "sidebarLabel": "Primary Variable",
     "choices": [
+      {"value": "count", "label": "Incidence", "type": "count", "sub_var": "pathogen"},
       {"value": "flu_shot", "label": "Vaccination Status", "type": "boolean"},
       {"value": "sex", "label": "Sex", "type": "categorical"},
       {"value": "pathogen", "label": "Pathogen", "type": "categorical"},
