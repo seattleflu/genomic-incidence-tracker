@@ -118,16 +118,15 @@ const _flattenData = (dataPoints, categories, demes) => {
   const counts = demes.map((deme) => {
     const point = {key: deme};
     categories.forEach((category) => {point[category] = 0;});
-    let tmp = 0;
+    let currentMax = 0;
     dataPoints.forEach((d) => {
       if (d.deme === deme) {
         point[d.value]++;
-        tmp++;
+        currentMax++;
       }
     });
-    if (tmp > maxValue) {
-      maxValue = tmp;
-    }
+    maxValue = Math.max(currentMax, maxValue);
+
     return point;
   });
   return [counts, maxValue];
