@@ -1,6 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch");
+const bodyParser = require('body-parser');
 const { log, warn, verbose } = require("./utils");
+
 /*
  * This file contains the API handlers for the genomic incidence mapper
  * They are used during development by the server here (./index.js)
@@ -60,15 +63,42 @@ const getResults = async (req, res) => {
   return res.json(JSON.parse(fileContents));
 };
 
-
 const addHandlers = ({app, jwtMiddleware}) => {
+  app.use(bodyParser.urlencoded({extended: false})); // parse application/x-www-form-urlencoded
+  app.use(bodyParser.json()); // parse application/json
+
   app.get("/getData", getDataExample);
   app.get("/getAvailableVariables", getAvailableVariables);
   app.get("/getGeoJsons", getGeoJsons);
   /* currently only "/getResults" requires a JWT check */
   app.get("/getResults", jwtMiddleware, getResults);
-};
 
+  const fetchModellingData = async (req, res) => {
+    const body = {
+      model_type: "inla_latent",
+      observed: ["encountered_week", "residence_neighborhood_district_name"],
+      pathogen: [req.params.pathogen],
+      spatial_domain: "seattle_geojson_neighborhood_district_name"
+    };
+
+    const config = {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      json: true,
+      credentials: 'omit', // no cookies!
+      body: JSON.stringify(body)
+    };
+
+    const response = await fetch('http://40.112.165.255/v1/query', config);
+    const data = await response.json();
+    res.json(data);
+  };
+
+  app.get('/getModelResults/:pathogen', fetchModellingData);
+
+};
 module.exports = {
   addHandlers
 };
