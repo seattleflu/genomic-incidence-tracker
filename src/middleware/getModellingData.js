@@ -1,27 +1,11 @@
 import * as types from "../actions/types";
 import { selectSettingsForModelRequest, isModelViewSelected } from "../reducers/settings";
 
-const fetchModellingData = (body) => {
-  const config = {
-    method: 'POST',
-    headers: {
-      Authorization: localStorage.getItem('user'),
-      "Content-Type": "application/json"
-    },
-    credentials: 'omit', // no cookies!
-    body: JSON.stringify(body)
-  };
-  if (!config.headers.Authorization) {
-    throw new Error("No JWT (needed to fetch modelling results)");
-  }
-  return fetch('/getModelResults', config)
-    .then((res) => {
-      if (res.status !== 200) throw new Error(res.statusText);
-      return res;
-    })
-    .then((res) => res.json());
+const fetchModellingData = async (pathogen) => {
+  const response = await fetch(`/getModelResults/${pathogen}`);
+  const data = await response.json();
+  return data;
 };
-
 
 /**
  * What is this middleware?
@@ -59,11 +43,33 @@ const getModellingDataMiddleware = (store) => (next) => async (action) => {
     return result;
   }
 
-  const postBody = selectSettingsForModelRequest(state);
 
+
+  const postBody = selectSettingsForModelRequest(state);
+  console.log(postBody);
+
+  let pathogenIDM;
+  switch (postBody.pathogen) {
+    case 'all':
+      pathogenIDM = 'all'; // technically incorrect
+      break;
+    case 'allPositive':
+      pathogenIDM = 'all';
+      break;
+    case 'h1n1pdm':
+      pathogenIDM = 'Flu_A_H1';
+      break;
+    case 'h3n2':
+      pathogenIDM = 'Flu_A_H3';
+      break;
+    default:
+      throw Error(`Organism ${postBody.pathogen} not yet implemented.`);
+  }
+
+  console.log(pathogenIDM);
   let modelResults;
   try {
-    modelResults = await fetchModellingData(postBody);
+    modelResults = await fetchModellingData(pathogenIDM);
   } catch (err) {
     console.error("Error getting modeling results:");
     console.error(err);

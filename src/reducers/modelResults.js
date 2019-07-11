@@ -25,14 +25,27 @@ export const areModelResultsReady = (state) => state.modelResults.ready;
 
 export const selectModelErrorMessage = (state) => state.modelResults.message;
 
-export const selectModelResults = (modelData, demes, geoLinks, geoResolution, modellingDisplayVariable) => {
+export const selectModelResults = (
+  modelData, demes, geoLinks, geoResolution, modellingDisplayVariable) => {
+
+  let geoResIDM;
+
+  if (geoResolution.value === 'neighborhood') {
+    geoResIDM = 'residence_neighborhood_district_name';
+  } else {
+    geoResIDM = 'residence_census_tract';
+  }
+
   const categories = ["incidence"];
   let maxValue = 0;
   const counts = modelData.map((d) => {
-    const deme = geoLinks[d.residence_census_tract][geoResolution.value];
+    // const deme = geoLinks[d.residence_census_tract][geoResolution.value];
+    const deme = d[geoResIDM];
     const value = d[modellingDisplayVariable.value];
-    if (value > maxValue) maxValue = value;
-    return {key: deme, incidence: value};
+    maxValue = Math.max(value, maxValue);
+    const res = {key: deme, incidence: value};
+
+    return res;
   });
 
   return {

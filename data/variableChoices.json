@@ -85,9 +85,12 @@
   "modellingDisplayVariable": {
     "sidebarLabel": "Modelling value",
     "choices": [
-      {"value": "mean", "label": "mean"},
-      {"value": "mode", "label": "mode"},
-      {"value": "quintile", "label": "quintile"}
+      {"value": "modeled_intensity_mean", "label": "mean"},
+      {"value": "modeled_intensity_mode", "label": "mode"},
+      {"value": "modeled_intensity_median", "label": "median"},
+      {"value": "modeled_intensity_lower_95_CI", "label": "lower 95% CI"},
+      {"value": "modeled_intensity_upper_95_CI", "label": "upper 95% CI"},
+      {"value": "modeled_intensity_sd", "label": "standard deviation"}
     ]
   }
 }
