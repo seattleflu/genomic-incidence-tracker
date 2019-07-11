@@ -47,33 +47,31 @@ const getModellingDataMiddleware = (store) => (next) => async (action) => {
   const result = next(action);
   const state = store.getState();
 
-
-  if (action.type === types.CHANGE_SETTING) {
-    if (action.key === "dataSource" && action.value.value !== "model") {
-      /* back to raw data view, clear (previous) model data & return */
-      next({type: types.CLEAR_MODEL_DATA});
-      return result;
-    }
-    if (!isModelViewSelected(state)) {
-      /* not in modelling view, so no fetch required */
-      return result;
-    }
-    /* before we fetch, clear any previous data */
-    next({type: types.CLEAR_MODEL_DATA});
-
-    /* this is the API request body -- one day this will go to the modelling server */
-    const postBody = selectSettingsForModelRequest(state);
-    let modelResults;
-    try {
-      modelResults = await fetchModellingData(postBody);
-    } catch (err) {
-      console.error("Error getting modeling results:");
-      console.error(err);
-      // TODO - should switch back to raw data view, but this isn't great for developing ;)
-      return next({type: types.ERROR_MODEL_DATA, message: err.message});
-    }
-    return next({type: types.SET_MODEL_DATA, data: modelResults});
+  if (!isModelViewSelected(state) || action.type !== types.CHANGE_SETTING) {
+    return result;
   }
+
+  /* before we fetch, clear any previous data */
+  next({type: types.CLEAR_MODEL_DATA});
+
+  if (action.key === "dataSource" && action.value.value !== "model") {
+    /* back to raw data view */
+    return result;
+  }
+
+  const postBody = selectSettingsForModelRequest(state);
+
+  let modelResults;
+  try {
+    modelResults = await fetchModellingData(postBody);
+  } catch (err) {
+    console.error("Error getting modeling results:");
+    console.error(err);
+    // TODO - should switch back to raw data view, but this isn't great for developing ;)
+    return next({type: types.ERROR_MODEL_DATA, message: err.message});
+  }
+  return next({type: types.SET_MODEL_DATA, data: modelResults});
+
 };
 
 export default getModellingDataMiddleware;
