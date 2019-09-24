@@ -12,7 +12,7 @@ const unknownFill = "rgb(150, 150, 150)";
  * a function to render a mapbox / D3 map, intended to be called from a useEffect hook
  *
  * Currently we are _only_ displaying a simple chrolopleth fill, so we simply fill demes
- * with grey _unless_ the primaryVariable has n=2 categories (e.g. boolean
+ * with grey _unless_ the primaryVariable has n=1 or n=2 categories (e.g. counts, boolean
  * or categorical with 2 cats)
  *
  * Note that the colour scales for multiple maps (faceting) will be different! TO DO
@@ -71,16 +71,20 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
       resultsData.counts.forEach((d) => {demeValues[d.key] = d[vizCategory];});
       domainMax = resultsData.maxValue;
     } else {
-      resultsData.percentages.forEach((d) => {demeValues[d.key] = d[vizCategory];});
+      resultsData.mapData.forEach((d) => {demeValues[d.key] = d[vizCategory];});
       domainMax = 100;
     }
 
-    if (!modelViewSelected) {
+    if (categories.length === 1) {
+      mainTitle += ` (total counts)`;
+    } else if (!modelViewSelected) {
       mainTitle += `. Showing % ${vizCategory}`;
     }
 
     /* A D3 colour scale -- currently we only work with simple chloropleths */
     const colourScale = scaleSequential(interpolatePlasma).unknown("#ccc").domain([0, domainMax]);
+
+    const userTextSuffix = categories.length === 1 ? '' : '%';
 
     /* What should the hover info box display? */
     makeInfo = (d) => {
@@ -89,7 +93,7 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
       if (Number.isNaN(value)) {
         return `No data for ${deme}`;
       }
-      return `${deme}: ${value}%`;
+      return `${deme}: ${value}${userTextSuffix}`;
     };
 
     fill = (d) => {
@@ -107,7 +111,7 @@ export const renderMap = ({ref, width, height, resultsData, modelViewSelected, s
       )
       .tickSize(6)
       .ticks(8)
-      .tickFormat((d) => `${d}%`);
+      .tickFormat((d) => `${d}${userTextSuffix}`);
   }
 
   /* basic SVG set up */

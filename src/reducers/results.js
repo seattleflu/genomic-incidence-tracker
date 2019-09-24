@@ -22,26 +22,35 @@ const resultsReducer = (state = null, action) => {
  * If the variable is continous then return the appropriate bin (aka category label)
  * @param {object} data an element of the results array
  * @param {object} variable a chosen variable (primary or group-by).
- *  Obligatory keys: `value`, `label`, `type`. Optional keys: `bins`
+ *  Obligatory keys: `value`, `label`, `type`. Optional keys: `bins`, `sub_var`.
  */
 const _variableToCategory = (data, variable) => {
   let category;
-  if (variable.type === "boolean") {
-    category = data[variable.value] ? "Yes" : "No";
-  } else if (variable.type === "categorical") {
-    category = data[variable.value];
-  } else if (variable.type === "continuous") {
-    const value = parseInt(data[variable.value], 10); /* TO DO -- may not be an int! */
-    for (const bin of variable.bins) {
-      /* bins are half open [a, b) where a=bin[0], b=bin[1]. bin[2] is category label */
-      if (value >= bin[0] && value < bin[1]) {
-        category = bin[2];
-        break;
+
+  switch (variable.type) {
+    case "count":
+      category = data[variable.sub_var] ? "Yes" : null;
+      break;
+    case "boolean":
+      category = data[variable.value] ? "Yes" : "No";
+      break;
+    case "categorical":
+      category = data[variable.value];
+      break;
+    case "continuous":
+      const value = parseInt(data[variable.value], 10); /* TO DO -- may not be an int! */
+      for (const bin of variable.bins) {
+        /* bins are half open [a, b) where a=bin[0], b=bin[1]. bin[2] is category label */
+        if (value >= bin[0] && value < bin[1]) {
+          category = bin[2];
+          break;
+        }
       }
-    }
-  } else {
-    throw Error(`invalid variable type ${variable.type}`);
+      break;
+    default:
+      throw Error(`invalid variable type ${variable.type}`);
   }
+
   return category;
 };
 
@@ -112,16 +121,15 @@ const _flattenData = (dataPoints, categories, demes) => {
   const counts = demes.map((deme) => {
     const point = {key: deme};
     categories.forEach((category) => {point[category] = 0;});
-    let tmp = 0;
+    let currentMax = 0;
     dataPoints.forEach((d) => {
       if (d.deme === deme) {
         point[d.value]++;
-        tmp++;
+        currentMax++;
       }
     });
-    if (tmp > maxValue) {
-      maxValue = tmp;
-    }
+    maxValue = Math.max(currentMax, maxValue);
+
     return point;
   });
   return [counts, maxValue];
@@ -158,21 +166,29 @@ const getCategories = (results, variable) => {
   }
   // console.log("SELECTOR selectCategoriesFor:", variable.value);
   let categories;
-  if (variable.type === "boolean") {
-    categories = ["Yes", "No"];
-  } else if (variable.type === "categorical") {
-    categories = [];
-    results.forEach((d) => {
-      const value = d[variable.value];
-      if (value && !categories.includes(value)) {
-        categories.push(value);
-      }
-    });
-  } else if (variable.type === "continuous") {
-    categories = variable.bins.map((b) => b[2]);
-  } else {
-    throw Error(`invalid primaryVariable.type ${variable.type}`);
+  switch (variable.type) {
+    case "boolean":
+      categories = ["Yes", "No"];
+      break;
+    case "count":
+      categories = ["Yes"];
+      break;
+    case "categorical":
+      categories = [];
+      results.forEach((d) => {
+        const value = d[variable.value];
+        if (value && !categories.includes(value)) {
+          categories.push(value);
+        }
+      });
+      break;
+    case "continuous":
+      categories = variable.bins.map((b) => b[2]);
+      break;
+    default:
+      throw Error(`invalid primaryVariable.type ${variable.type}`);
   }
+
   return categories;
 };
 
@@ -203,12 +219,19 @@ export const selectRawDataResults = (results, categories, demes, geoLinks, geoRe
   const pathogenFilter = _createPathogenFilter(pathogenSelected);
   const dataPoints = _createFilteredResults(results, groupByFilter, pathogenFilter, geoLinks, geoResolution, primaryVariable);
   const [counts, maxValue] = _flattenData(dataPoints, categories, demes);
-  const percentages = _calcPercentages(categories, counts);
+
+  let mapData = null;
+  if (categories.length < 2) {
+    mapData = counts;
+  } else {
+    mapData = _calcPercentages(categories, counts);
+  }
+
   return {
     pathogen: pathogenSelected,
     demes,
     counts,
-    percentages,
+    mapData,
     categories,
     maxValue,
     primaryVariable,
@@ -218,4 +241,3 @@ export const selectRawDataResults = (results, categories, demes, geoLinks, geoRe
 };
 
 export default resultsReducer;
-
